@@ -73,6 +73,16 @@
   margin: 0.3em auto;
 }
 
+/* 印章：红色叠加于成文日期之上（以负外边距上移叠压，混合模式取红） */
+.odoc-typearea img.odoc-seal {
+  position: relative;
+  z-index: 2;
+  margin-top: -2.2em;
+  max-width: 40mm;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
 /* 公文表格：全框线、仿宋、单元格内容居中（编辑区与预览区共用） */
 .odoc-typearea table {
   border-collapse: collapse;
@@ -96,12 +106,17 @@
   text-align: center;
 }
 
-/* 红色分隔线（发文字号下方的反线 / 版记分隔线）：与版心等宽 */
+/* 分隔线：默认红头反线（红色）；版记线为黑色全幅。与版心等宽 */
 .odoc-page .ProseMirror hr,
 .odoc-separator {
   border: none;
   border-top: 1.5pt solid var(--odoc-red);
   margin: 0.4em 0;
+}
+
+.odoc-page .ProseMirror hr.odoc-hr--record,
+.odoc-separator.odoc-hr--record {
+  border-top: 0.75pt solid #000;
 }
 
 /* 可选：显示版心边界，便于核对版式 */

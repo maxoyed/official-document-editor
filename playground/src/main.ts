@@ -29,6 +29,8 @@ app.innerHTML = `
     <button data-cmd="fill">填充长文</button>
     <button data-cmd="table">插入表格</button>
     <button data-cmd="image">插入图片</button>
+    <button data-cmd="seal">插入印章</button>
+    <button data-cmd="record">版记线</button>
     <button data-cmd="reset">载入红头模板</button>
     <button data-cmd="import">导入 docx</button>
     <button data-cmd="export">导出 docx</button>
@@ -128,17 +130,34 @@ cmd("table").addEventListener("click", () => {
 });
 
 const imgInput = document.querySelector<HTMLInputElement>("#imgfile")!;
-cmd("image").addEventListener("click", () => imgInput.click());
+let asSeal = false;
+cmd("image").addEventListener("click", () => {
+  asSeal = false;
+  imgInput.click();
+});
+cmd("seal").addEventListener("click", () => {
+  asSeal = true;
+  imgInput.click();
+});
 imgInput.addEventListener("change", () => {
   const file = imgInput.files?.[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = () => {
-    editor.chain().focus().setImage({ src: String(reader.result) }).run();
+    editor
+      .chain()
+      .focus()
+      .insertContent({ type: "image", attrs: { src: String(reader.result), seal: asSeal } })
+      .run();
     refreshPreview();
   };
   reader.readAsDataURL(file);
   imgInput.value = "";
+});
+
+cmd("record").addEventListener("click", () => {
+  editor.chain().focus().setHorizontalRuleVariant("record").run();
+  refreshPreview();
 });
 
 cmd("export").addEventListener("click", async () => {

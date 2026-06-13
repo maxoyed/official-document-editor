@@ -10,6 +10,8 @@ import {
   BorderStyle,
   Document,
   Footer,
+  HorizontalPositionAlign,
+  HorizontalPositionRelativeFrom,
   ImageRun,
   LineRuleType,
   Packer,
@@ -19,6 +21,9 @@ import {
   TableCell,
   TableRow,
   TextRun,
+  TextWrappingType,
+  VerticalPositionAlign,
+  VerticalPositionRelativeFrom,
   WidthType,
   type IParagraphStyleOptions,
   type ISectionOptions,
@@ -147,7 +152,13 @@ function tableForNode(node: JSONContent): Table {
                     textOf(p),
                   ),
               );
-              return new TableCell({ children });
+              const colspan = Number(cell.attrs?.colspan ?? 1) || 1;
+              const rowspan = Number(cell.attrs?.rowspan ?? 1) || 1;
+              return new TableCell({
+                children,
+                columnSpan: colspan > 1 ? colspan : undefined,
+                rowSpan: rowspan > 1 ? rowspan : undefined,
+              });
             }),
         }),
     ),
@@ -163,7 +174,9 @@ function imageParagraph(node: JSONContent): Paragraph {
     return paragraphForRole("body", node.attrs?.alt ? `[图片：${node.attrs.alt}]` : "[图片]");
   }
   const size = readImageSize(parsed.bytes) ?? { width: 400, height: 300 };
-  const scale = size.width > TYPE_AREA_WIDTH_PX ? TYPE_AREA_WIDTH_PX / size.width : 1;
+  const isSeal = !!node.attrs?.seal;
+  const maxWidth = isSeal ? (40 / 25.4) * 96 : TYPE_AREA_WIDTH_PX; // 印章约 40mm
+  const scale = size.width > maxWidth ? maxWidth / size.width : 1;
   return new Paragraph({
     alignment: AlignmentType.CENTER,
     children: [
@@ -174,19 +187,38 @@ function imageParagraph(node: JSONContent): Paragraph {
           width: Math.round(size.width * scale),
           height: Math.round(size.height * scale),
         },
+        // 印章导出为浮动图片，允许叠压于成文日期之上
+        ...(isSeal
+          ? {
+              floating: {
+                horizontalPosition: {
+                  relative: HorizontalPositionRelativeFrom.MARGIN,
+                  align: HorizontalPositionAlign.CENTER,
+                },
+                verticalPosition: {
+                  relative: VerticalPositionRelativeFrom.PARAGRAPH,
+                  align: VerticalPositionAlign.CENTER,
+                },
+                allowOverlap: true,
+                behindDocument: false,
+                wrap: { type: TextWrappingType.NONE },
+              },
+            }
+          : {}),
       }),
     ],
   });
 }
 
-/** 红色分隔线（发文字号下的反线）：用段落下边框表示。 */
-function separatorParagraph(): Paragraph {
+/** 分隔线：用段落下边框表示。reverse=红头反线(红1.5pt)，record=版记线(黑0.75pt)。 */
+function separatorParagraph(variant: "reverse" | "record" = "reverse"): Paragraph {
+  const isRecord = variant === "record";
   return new Paragraph({
     border: {
       bottom: {
         style: BorderStyle.SINGLE,
-        size: 12, // 八分之一磅为单位 → 1.5pt
-        color: OFFICIAL_RED.replace("#", ""),
+        size: isRecord ? 6 : 12, // 八分之一磅为单位 → 0.75pt / 1.5pt
+        color: isRecord ? "000000" : OFFICIAL_RED.replace("#", ""),
         space: 1,
       },
     },
@@ -215,7 +247,8 @@ function pageNumberFooter(align: (typeof AlignmentType)[keyof typeof AlignmentTy
 function buildChildren(doc: JSONContent): (Paragraph | Table)[] {
   const top = (doc.type === "doc" ? doc.content : [doc]) ?? [];
   return top.map((node) => {
-    if (node.type === "horizontalRule") return separatorParagraph();
+    if (node.type === "horizontalRule")
+      return separatorParagraph((node.attrs?.variant as "reverse" | "record") ?? "reverse");
     if (node.type === "image") return imageParagraph(node);
     if (node.type === "table") return tableForNode(node);
     const role = (node.attrs?.officialRole as OfficialElement | undefined) ?? DEFAULT_ROLE;

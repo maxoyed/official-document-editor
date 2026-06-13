@@ -25,13 +25,15 @@ export interface PaginatedPreviewOptions {
 function renderBlock(node: JSONContent): HTMLElement {
   if (node.type === "horizontalRule") {
     const hr = document.createElement("hr");
-    hr.className = "odoc-separator";
+    const variant = (node.attrs?.variant as string) || "reverse";
+    hr.className = `odoc-separator odoc-hr--${variant}`;
     return hr;
   }
   if (node.type === "image") {
     const img = document.createElement("img");
     if (node.attrs?.src) img.src = String(node.attrs.src);
     if (node.attrs?.alt) img.alt = String(node.attrs.alt);
+    if (node.attrs?.seal) img.className = "odoc-seal";
     return img;
   }
   if (node.type === "table") {

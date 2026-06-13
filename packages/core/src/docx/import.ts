@@ -105,12 +105,15 @@ function inferRole(props: ParaProps): OfficialElement {
 }
 
 function paragraphToNode(pChildren: PO[], ctx: ImportCtx): JSONContent {
-  // 图片：段落内含 w:drawing → a:blip r:embed
+  // 图片：段落内含 w:drawing → a:blip r:embed。浮动锚定(wp:anchor)还原为印章
   const blip = findDeep(pChildren, "a:blip");
   if (blip) {
     const embed = attr(blip, "r:embed") ?? attr(blip, "r:link");
     const src = embed ? resolveImage(ctx, embed) : null;
-    if (src) return { type: "image", attrs: { src } };
+    if (src) {
+      const isSeal = !!findDeep(pChildren, "wp:anchor");
+      return { type: "image", attrs: isSeal ? { src, seal: true } : { src } };
+    }
   }
 
   const pPr = find(pChildren, "w:pPr");
@@ -118,9 +121,13 @@ function paragraphToNode(pChildren: PO[], ctx: ImportCtx): JSONContent {
   const runs = findAll(pChildren, "w:r");
   const text = runs.map((r) => collectText(childrenOf(r))).join("");
 
-  // 分隔线：段落下边框且无文字
-  const hasBorder = !!find(pPrKids, "w:pBdr");
-  if (hasBorder && text.trim() === "") return { type: "horizontalRule" };
+  // 分隔线：段落下边框且无文字。按边框颜色区分红头反线 / 版记黑线
+  const pBdr = find(pPrKids, "w:pBdr");
+  if (pBdr && text.trim() === "") {
+    const color = attr(find(childrenOf(pBdr), "w:bottom"), "w:color");
+    const variant = color && color.toLowerCase() !== "e60012" ? "record" : "reverse";
+    return { type: "horizontalRule", attrs: { variant } };
+  }
 
   // 优先命名样式（无损）
   const styleVal = attr(find(pPrKids, "w:pStyle"), "w:val");
@@ -151,16 +158,40 @@ function paragraphToNode(pChildren: PO[], ctx: ImportCtx): JSONContent {
 }
 
 function tableToNode(tblChildren: PO[], ctx: ImportCtx): JSONContent {
-  const rows = findAll(tblChildren, "w:tr").map((tr) => {
-    const cells = findAll(kids(tr, "w:tr"), "w:tc").map((tc) => {
+  const rows: JSONContent[] = [];
+  // grid 列 → 当前占据该列的合并起始单元格（用于纵向合并 vMerge=continue 累加 rowspan）
+  const colOrigin = new Map<number, JSONContent>();
+
+  for (const tr of findAll(tblChildren, "w:tr")) {
+    const rowCells: JSONContent[] = [];
+    let col = 0;
+    for (const tc of findAll(kids(tr, "w:tr"), "w:tc")) {
+      const tcPr = find(kids(tc, "w:tc"), "w:tcPr");
+      const tcPrKids = tcPr ? childrenOf(tcPr) : [];
+      const gridSpan = Number(attr(find(tcPrKids, "w:gridSpan"), "w:val") ?? "1") || 1;
+      const vMerge = find(tcPrKids, "w:vMerge");
+      const isContinue = !!vMerge && attr(vMerge, "w:val") !== "restart";
+
+      if (isContinue) {
+        // 纵向合并的延续格：累加起始格 rowspan，不产出单元格
+        const origin = colOrigin.get(col);
+        if (origin?.attrs) origin.attrs.rowspan = Number(origin.attrs.rowspan ?? 1) + 1;
+        col += gridSpan;
+        continue;
+      }
+
       const paras = findAll(kids(tc, "w:tc"), "w:p").map((p) => paragraphToNode(kids(p, "w:p"), ctx));
-      return {
+      const cell: JSONContent = {
         type: "tableCell",
+        attrs: { colspan: gridSpan, rowspan: 1 },
         content: paras.length ? paras : [{ type: "paragraph" }],
-      } satisfies JSONContent;
-    });
-    return { type: "tableRow", content: cells } satisfies JSONContent;
-  });
+      };
+      rowCells.push(cell);
+      for (let k = 0; k < gridSpan; k++) colOrigin.set(col + k, cell);
+      col += gridSpan;
+    }
+    rows.push({ type: "tableRow", content: rowCells });
+  }
   return { type: "table", content: rows };
 }
 
