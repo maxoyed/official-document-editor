@@ -29,8 +29,10 @@
   可编辑区即多页所见即所得，自动插入页间留白与页码
 - **docx 导入 / 导出**（`@odoc/core/docx`，纯前端离线）：导出符合公文版式的 .docx
   （A4 版心、各要素字体字号、固定行距、页码奇偶对齐）；导入按字体/字号/对齐反推要素
+- **框架适配**（`@odoc/vue` / `@odoc/react`）：开箱 `<OfficialEditor>` 组件，
+  Vue 走 `v-model`、React 走 `value/onChange`，headless core 之上薄封装
 - **字体插槽**（`registerFont`）：开源字体兜底 + 用户授权字体运行时注入
-- **可运行 Playground**：编辑 + 实时分页预览双栏联调
+- **可运行 Playground / Examples**：编辑+实时分页预览双栏；Vue/React 适配示例
 
 ## 字体与版权（重要）
 
@@ -100,6 +102,34 @@ const blob = await toDocxBlob(editor.getJSON());
 editor.commands.setContent(fromDocx(await file.arrayBuffer()));
 ```
 
+Vue 3（`@odoc/vue`）：
+
+```vue
+<script setup lang="ts">
+import { ref } from "vue";
+import { OfficialEditor } from "@odoc/vue";
+import "@odoc/core/styles.css";
+const doc = ref();
+</script>
+
+<template>
+  <OfficialEditor v-model="doc" :pagination="true" />
+</template>
+```
+
+React（`@odoc/react`）：
+
+```tsx
+import { useState } from "react";
+import { OfficialEditor } from "@odoc/react";
+import "@odoc/core/styles.css";
+
+export default function App() {
+  const [doc, setDoc] = useState();
+  return <OfficialEditor value={doc} onChange={setDoc} pagination />;
+}
+```
+
 ## 工程结构
 
 ```
@@ -113,15 +143,18 @@ packages/
     src/extensions/ Tiptap 公文要素扩展
     src/styles/    页面/版心样式 + 按 spec 生成的要素样式
     src/templates  公文模板（红头文件等）
-playground/        Vite 联调示例
+  vue/             @odoc/vue —— Vue 3 适配（<OfficialEditor v-model>）
+  react/           @odoc/react —— React 适配（<OfficialEditor value/onChange>）
+playground/        Vite 联调示例（原生）
+examples/          Vue / React 适配示例
 ```
 
 ## 路线图
 
 - [x] **精确分页（引擎 + 预览）**：headless 逐行分页引擎、A4 分页预览、打印/导出 PDF、页码编排
 - [x] **docx 导入/导出**：纯前端 OOXML 生成与解析，公文版式映射、要素往返
-- [x] **编辑器内联分页（块级）**：可编辑区实时多页所见即所得 + 页间留白 + 页码
-- [ ] **内联分页增强**：超长段落按行跨页断行、每页白纸背景还原
+- [x] **编辑器内联分页**：可编辑区实时多页所见即所得 + 段落按行跨页断行 + 白纸背景 + 页码
+- [x] **框架适配层**：`@odoc/vue`、`@odoc/react` 薄封装（`<OfficialEditor>`）
 - [ ] **docx 保真增强**：表格、图片、印章、版记分隔线、自定义样式名无损往返
 - [ ] **框架适配层**：`@odoc/vue`、`@odoc/react` 薄封装
 - [ ] 印章、附件页、版记分隔线等要素的完整支持
