@@ -19,6 +19,8 @@ export interface OfficialEditorOptions
   placeholder?: string;
   /** 是否自动注入公文要素样式（默认 true） */
   injectStyles?: boolean;
+  /** 是否启用编辑器内联实时分页（默认 false，需浏览器环境） */
+  pagination?: boolean;
 }
 
 export function createOfficialDocumentEditor(
@@ -27,6 +29,7 @@ export function createOfficialDocumentEditor(
   const {
     content,
     placeholder,
+    pagination = false,
     injectStyles = true,
     editorProps,
     ...rest
@@ -43,7 +46,7 @@ export function createOfficialDocumentEditor(
         ...(editorProps?.attributes as Record<string, string> | undefined),
       },
     },
-    extensions: getOfficialExtensions({ placeholder }),
+    extensions: getOfficialExtensions({ placeholder, pagination }),
     content: content ?? redHeadDocumentTemplate(),
   });
 }

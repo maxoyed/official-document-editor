@@ -43,6 +43,16 @@ body {
   border-color: #b9bdc4;
 }
 
+.toolbar .toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+  user-select: none;
+}
+
 .toolbar .pagecount {
   font-size: 12px;
   color: #6b7280;

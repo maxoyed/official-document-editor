@@ -99,18 +99,20 @@ export function renderPaginatedPreview(
   };
 
   refs = newPage();
+  let used = 0;
 
   for (const node of blocks) {
     const el = renderBlock(node);
     refs.area.appendChild(el);
-    if (
-      refs.area.getBoundingClientRect().height > pageContentPx &&
-      refs.area.childElementCount > 1
-    ) {
-      // 放不下：移到下一页
+    const h = el.getBoundingClientRect().height;
+    // 按块高累计判断是否超出版心；不依赖容器 min-height（其等于版心高会导致误判）
+    if (used + h > pageContentPx && refs.area.childElementCount > 1) {
       refs.area.removeChild(el);
       refs = newPage();
       refs.area.appendChild(el);
+      used = el.getBoundingClientRect().height;
+    } else {
+      used += h;
     }
   }
 

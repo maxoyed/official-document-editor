@@ -24,6 +24,7 @@ app.innerHTML = `
     <button data-role="signature">署名</button>
     <button data-role="dateline">成文日期</button>
     <span class="spacer"></span>
+    <label class="toggle"><input type="checkbox" id="inline-paging" /> 内联分页</label>
     <span class="pagecount" id="pagecount"></span>
     <button data-cmd="fill">填充长文</button>
     <button data-cmd="reset">载入红头模板</button>
@@ -50,10 +51,7 @@ const page = document.querySelector<HTMLDivElement>("#page")!;
 const preview = document.querySelector<HTMLDivElement>("#preview")!;
 const pagecount = document.querySelector<HTMLSpanElement>("#pagecount")!;
 
-const editor: Editor = createOfficialDocumentEditor({
-  element: page,
-  content: redHeadDocumentTemplate(),
-});
+let editor: Editor;
 
 function refreshPreview() {
   const doc = editor.getJSON();
@@ -62,8 +60,25 @@ function refreshPreview() {
   pagecount.textContent = `预览 ${pages} 页 · 引擎估算 ${estimate} 页`;
 }
 
-editor.on("update", refreshPreview);
-refreshPreview();
+function mountEditor(paginated: boolean, content = redHeadDocumentTemplate() as unknown) {
+  editor?.destroy();
+  page.innerHTML = "";
+  editor = createOfficialDocumentEditor({
+    element: page,
+    content: content as ReturnType<typeof redHeadDocumentTemplate>,
+    pagination: paginated,
+  });
+  editor.on("update", refreshPreview);
+  (window as unknown as { __editor: Editor }).__editor = editor; // 便于联调/验证
+  refreshPreview();
+}
+
+mountEditor(false);
+
+const inlinePaging = document.querySelector<HTMLInputElement>("#inline-paging")!;
+inlinePaging.addEventListener("change", () => {
+  mountEditor(inlinePaging.checked, editor.getJSON());
+});
 
 document.querySelectorAll<HTMLButtonElement>("button[data-role]").forEach((btn) => {
   btn.addEventListener("click", () => {

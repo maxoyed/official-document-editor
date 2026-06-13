@@ -60,7 +60,8 @@
   color: #000;
 }
 
-.odoc-page .ProseMirror p {
+.odoc-page .ProseMirror p,
+.odoc-typearea p {
   margin: 0;
 }
 
@@ -89,6 +90,21 @@
 
 /* 页码：4 号半角宋体阿拉伯数字，编排于版心下边缘之下 7mm */
 .odoc-page-number {
+  font-family: var(--odoc-font-songti);
+  font-size: 14pt; /* 四号 */
+  color: #000;
+  white-space: nowrap;
+}
+
+/* 编辑器内联分页：分页间隔。纵向渐变还原“上一页地脚(白)→页间空隙(灰)→下一页天头(白)”，
+   页码落在上一页版心下边缘之下。背景渐变由插件按各页剩余高度内联设置。 */
+.odoc-page-break {
+  position: relative;
+  margin: 0 calc(-1 * 26mm) 0 calc(-1 * 28mm); /* 全幅，抵消版心左右白边 */
+  user-select: none;
+}
+
+.odoc-inline-page-number {
   font-family: var(--odoc-font-songti);
   font-size: 14pt; /* 四号 */
   color: #000;
