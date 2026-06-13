@@ -18,8 +18,8 @@ export function blocksFromDoc(doc: JSONContent): PaginationBlock[] {
     if (node.type === "horizontalRule") {
       return { atomic: true } as PaginationBlock;
     }
-    if (node.type === "table") {
-      // 表格不参与按行拆分；以全部文字粗估高度
+    if (node.type === "table" || node.type === "image") {
+      // 表格/图片不参与按行拆分
       return { atomic: true, text: textOf(node) } satisfies PaginationBlock;
     }
     const role = node.attrs?.officialRole as OfficialElement | undefined;

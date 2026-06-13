@@ -28,6 +28,12 @@ function renderBlock(node: JSONContent): HTMLElement {
     hr.className = "odoc-separator";
     return hr;
   }
+  if (node.type === "image") {
+    const img = document.createElement("img");
+    if (node.attrs?.src) img.src = String(node.attrs.src);
+    if (node.attrs?.alt) img.alt = String(node.attrs.alt);
+    return img;
+  }
   if (node.type === "table") {
     const table = document.createElement("table");
     for (const row of node.content ?? []) {

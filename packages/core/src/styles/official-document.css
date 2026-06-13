@@ -65,6 +65,14 @@
   margin: 0;
 }
 
+/* 图片：居中、限定版心宽度（编辑区与预览区共用） */
+.odoc-typearea img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0.3em auto;
+}
+
 /* 公文表格：全框线、仿宋、单元格内容居中（编辑区与预览区共用） */
 .odoc-typearea table {
   border-collapse: collapse;
