@@ -24,6 +24,7 @@ export default defineConfig({
     "@tiptap/extension-table-row",
     "@tiptap/extension-table-cell",
     "@tiptap/extension-table-header",
+    "@tiptap/extension-image",
     "docx",
     "fflate",
     "fast-xml-parser",

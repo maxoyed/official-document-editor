@@ -9,6 +9,7 @@ import Table from "@tiptap/extension-table";
 import TableRow from "@tiptap/extension-table-row";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
+import Image from "@tiptap/extension-image";
 import type { Extensions } from "@tiptap/core";
 import { OfficialRole } from "./official-role";
 import { Pagination } from "./pagination";
@@ -34,6 +35,7 @@ export function getOfficialExtensions(options: OfficialExtensionsOptions = {}): 
     TableRow,
     TableHeader,
     TableCell,
+    Image.configure({ allowBase64: true, inline: false }),
   ];
   if (options.pagination) extensions.push(Pagination);
   return extensions;

@@ -2,8 +2,9 @@
  * docx → 公文导入。
  *
  * 纯前端解析：fflate 解压 .docx（zip），fast-xml-parser 以 preserveOrder 读取
- * word/document.xml（保留段落/表格的相对顺序）。优先用命名样式 w:pStyle（odoc-*）
- * 无损还原公文要素角色；缺失时退回按字体/字号/对齐/缩进推断。支持表格与分隔线。
+ * word/document.xml（保留段落/表格/图片的相对顺序）。优先用命名样式 w:pStyle（odoc-*）
+ * 无损还原公文要素角色；缺失时退回按字体/字号/对齐/缩进推断。支持表格、分隔线与图片
+ * （通过关系文件 word/_rels/document.xml.rels 解析 r:embed，从 word/media 抽取媒体）。
  */
 import { unzipSync, strFromU8 } from "fflate";
 import { XMLParser } from "fast-xml-parser";
@@ -12,6 +13,7 @@ import { ELEMENT_SPEC, type OfficialElement } from "../spec/elements";
 import { toHalfPoint } from "../spec/font-size";
 import { FONT_ROLE_BY_DOCX_NAME } from "./font-map";
 import { STYLE_ID_PREFIX } from "./export";
+import { readImageSize, toDataUrl } from "./image";
 
 const DEFAULT_ROLE: OfficialElement = "body";
 const KNOWN_ROLES = new Set(Object.keys(ELEMENT_SPEC));
@@ -19,12 +21,21 @@ const KNOWN_ROLES = new Set(Object.keys(ELEMENT_SPEC));
 // ---- preserveOrder 遍历辅助 ----
 type PO = Record<string, unknown>;
 const tagOf = (n: PO): string => Object.keys(n).find((k) => k !== ":@") ?? "";
-const childrenOf = (n: PO): PO[] => (n[tagOf(n)] as PO[]) ?? [];
-const kids = (n: PO, tag: string): PO[] => (n[tag] as PO[]) ?? [];
+const asArray = (v: unknown): PO[] => (Array.isArray(v) ? (v as PO[]) : []);
+const childrenOf = (n: PO): PO[] => asArray(n[tagOf(n)]);
+const kids = (n: PO, tag: string): PO[] => asArray(n[tag]);
 const attr = (n: PO | undefined, name: string): string | undefined =>
   n ? ((n[":@"] as Record<string, string> | undefined)?.[`@_${name}`]) : undefined;
 const find = (arr: PO[], tag: string): PO | undefined => arr.find((n) => tagOf(n) === tag);
 const findAll = (arr: PO[], tag: string): PO[] => arr.filter((n) => tagOf(n) === tag);
+function findDeep(nodes: PO[], tag: string): PO | undefined {
+  for (const n of nodes) {
+    if (tagOf(n) === tag) return n;
+    const found = findDeep(childrenOf(n), tag);
+    if (found) return found;
+  }
+  return undefined;
+}
 
 function collectText(nodes: PO[]): string {
   let s = "";
@@ -33,6 +44,36 @@ function collectText(nodes: PO[]): string {
     else s += collectText(childrenOf(n));
   }
   return s;
+}
+
+interface ImportCtx {
+  files: Record<string, Uint8Array>;
+  rels: Record<string, string>;
+}
+
+function parseRels(xml?: Uint8Array): Record<string, string> {
+  if (!xml) return {};
+  const parser = new XMLParser({
+    ignoreAttributes: false,
+    attributeNamePrefix: "@_",
+    isArray: (name) => name === "Relationship",
+  });
+  const tree = parser.parse(strFromU8(xml));
+  const list = tree?.Relationships?.Relationship ?? [];
+  const map: Record<string, string> = {};
+  for (const r of list) map[r["@_Id"]] = r["@_Target"];
+  return map;
+}
+
+function resolveImage(ctx: ImportCtx, relId: string): string | null {
+  const target = ctx.rels[relId];
+  if (!target) return null;
+  const rel = target.replace(/^\/+/, "");
+  const path = rel.startsWith("word/") ? rel : `word/${rel}`.replace(/word\/\.\.\//, "");
+  const bytes = ctx.files[path] ?? ctx.files[rel];
+  if (!bytes) return null;
+  const size = readImageSize(bytes);
+  return toDataUrl(size?.type ?? "png", bytes);
 }
 
 function normAlign(a?: string): string {
@@ -63,7 +104,15 @@ function inferRole(props: ParaProps): OfficialElement {
   return DEFAULT_ROLE;
 }
 
-function paragraphToNode(pChildren: PO[]): JSONContent {
+function paragraphToNode(pChildren: PO[], ctx: ImportCtx): JSONContent {
+  // 图片：段落内含 w:drawing → a:blip r:embed
+  const blip = findDeep(pChildren, "a:blip");
+  if (blip) {
+    const embed = attr(blip, "r:embed") ?? attr(blip, "r:link");
+    const src = embed ? resolveImage(ctx, embed) : null;
+    if (src) return { type: "image", attrs: { src } };
+  }
+
   const pPr = find(pChildren, "w:pPr");
   const pPrKids = pPr ? childrenOf(pPr) : [];
   const runs = findAll(pChildren, "w:r");
@@ -101,10 +150,10 @@ function paragraphToNode(pChildren: PO[]): JSONContent {
   return node;
 }
 
-function tableToNode(tblChildren: PO[]): JSONContent {
+function tableToNode(tblChildren: PO[], ctx: ImportCtx): JSONContent {
   const rows = findAll(tblChildren, "w:tr").map((tr) => {
     const cells = findAll(kids(tr, "w:tr"), "w:tc").map((tc) => {
-      const paras = findAll(kids(tc, "w:tc"), "w:p").map((p) => paragraphToNode(kids(p, "w:p")));
+      const paras = findAll(kids(tc, "w:tc"), "w:p").map((p) => paragraphToNode(kids(p, "w:p"), ctx));
       return {
         type: "tableCell",
         content: paras.length ? paras : [{ type: "paragraph" }],
@@ -122,6 +171,11 @@ export function fromDocx(data: ArrayBuffer | Uint8Array): JSONContent {
   const docXml = files["word/document.xml"];
   if (!docXml) throw new Error("无效的 docx：未找到 word/document.xml");
 
+  const ctx: ImportCtx = {
+    files,
+    rels: parseRels(files["word/_rels/document.xml.rels"]),
+  };
+
   const parser = new XMLParser({
     preserveOrder: true,
     ignoreAttributes: false,
@@ -136,8 +190,8 @@ export function fromDocx(data: ArrayBuffer | Uint8Array): JSONContent {
   const content: JSONContent[] = [];
   for (const child of bodyChildren) {
     const tag = tagOf(child);
-    if (tag === "w:p") content.push(paragraphToNode(kids(child, "w:p")));
-    else if (tag === "w:tbl") content.push(tableToNode(kids(child, "w:tbl")));
+    if (tag === "w:p") content.push(paragraphToNode(kids(child, "w:p"), ctx));
+    else if (tag === "w:tbl") content.push(tableToNode(kids(child, "w:tbl"), ctx));
     // 跳过 w:sectPr 等
   }
 

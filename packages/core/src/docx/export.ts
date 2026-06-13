@@ -10,6 +10,7 @@ import {
   BorderStyle,
   Document,
   Footer,
+  ImageRun,
   LineRuleType,
   Packer,
   PageNumber,
@@ -25,10 +26,14 @@ import {
 } from "docx";
 import type { JSONContent } from "@tiptap/core";
 import { ELEMENT_SPEC, OFFICIAL_RED, type ElementSpec, type OfficialElement } from "../spec/elements";
-import { PAGE_A4_MM, MARGIN_MM, LINE_HEIGHT_MM } from "../spec/layout";
+import { PAGE_A4_MM, MARGIN_MM, TYPE_AREA_MM, LINE_HEIGHT_MM } from "../spec/layout";
 import { toHalfPoint, toPt, PT_TO_MM } from "../spec/font-size";
 import { DOCX_FONT_NAME } from "./font-map";
 import { mmToTwip, ptToTwip } from "./units";
+import { parseDataUrl, readImageSize } from "./image";
+
+/** 版心宽度（px，96dpi），用于限制图片最大宽度。 */
+const TYPE_AREA_WIDTH_PX = (TYPE_AREA_MM.width / 25.4) * 96;
 
 const DEFAULT_ROLE: OfficialElement = "body";
 
@@ -149,6 +154,31 @@ function tableForNode(node: JSONContent): Table {
   });
 }
 
+/** 图片节点 → 居中段落 + ImageRun（按版心宽度等比缩放）。 */
+function imageParagraph(node: JSONContent): Paragraph {
+  const src = (node.attrs?.src as string | undefined) ?? "";
+  const parsed = parseDataUrl(src);
+  if (!parsed) {
+    // 非 base64 data URL（如外链）无法离线嵌入，导出为占位文字
+    return paragraphForRole("body", node.attrs?.alt ? `[图片：${node.attrs.alt}]` : "[图片]");
+  }
+  const size = readImageSize(parsed.bytes) ?? { width: 400, height: 300 };
+  const scale = size.width > TYPE_AREA_WIDTH_PX ? TYPE_AREA_WIDTH_PX / size.width : 1;
+  return new Paragraph({
+    alignment: AlignmentType.CENTER,
+    children: [
+      new ImageRun({
+        data: parsed.bytes,
+        type: parsed.type,
+        transformation: {
+          width: Math.round(size.width * scale),
+          height: Math.round(size.height * scale),
+        },
+      }),
+    ],
+  });
+}
+
 /** 红色分隔线（发文字号下的反线）：用段落下边框表示。 */
 function separatorParagraph(): Paragraph {
   return new Paragraph({
@@ -186,6 +216,7 @@ function buildChildren(doc: JSONContent): (Paragraph | Table)[] {
   const top = (doc.type === "doc" ? doc.content : [doc]) ?? [];
   return top.map((node) => {
     if (node.type === "horizontalRule") return separatorParagraph();
+    if (node.type === "image") return imageParagraph(node);
     if (node.type === "table") return tableForNode(node);
     const role = (node.attrs?.officialRole as OfficialElement | undefined) ?? DEFAULT_ROLE;
     return paragraphForRole(role, textOf(node));

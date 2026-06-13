@@ -4,3 +4,5 @@
 export { toDocxBlob, toDocxBuffer, styleIdFor } from "./export";
 export { fromDocx } from "./import";
 export { DOCX_FONT_NAME } from "./font-map";
+export { readImageSize, parseDataUrl, toDataUrl } from "./image";
+export type { DocxImageType, ImageSize } from "./image";
