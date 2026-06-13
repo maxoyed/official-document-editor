@@ -1,0 +1,88 @@
+/**
+ * 公文页面与版心基础样式（GB/T 9704-2012）。
+ * A4 210×297mm，版心 156×225mm，天头 37mm、订口 28mm、切口 26mm、地脚 35mm。
+ *
+ * 要素级样式（字体/字号/对齐/缩进）由 injectOfficialStyles() 依 ELEMENT_SPEC 注入，
+ * 此处只负责页面、版心、字体兜底变量与可视化网格。
+ */
+
+:root {
+  --odoc-font-fangsong: "仿宋_GB2312", "仿宋", "FangSong", "STFangsong",
+    "Source Han Serif SC", "Noto Serif SC", serif;
+  --odoc-font-xiaobiaosong: "方正小标宋简体", "STZhongsong", "华文中宋",
+    "Source Han Serif SC", "Noto Serif SC", serif;
+  --odoc-font-heiti: "黑体", "SimHei", "STHeiti", "Source Han Sans SC",
+    "Noto Sans SC", sans-serif;
+  --odoc-font-kaiti: "楷体_GB2312", "楷体", "KaiTi", "STKaiti",
+    "Source Han Serif SC", "Noto Serif SC", serif;
+  --odoc-font-songti: "宋体", "SimSun", "STSong", "Source Han Serif SC",
+    "Noto Serif SC", serif;
+
+  --odoc-page-bg: #fff;
+  --odoc-canvas-bg: #f0f1f3;
+  --odoc-red: #e60012;
+}
+
+/* 灰色画布，居中摆放页面 */
+.odoc-canvas {
+  background: var(--odoc-canvas-bg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  overflow: auto;
+}
+
+/* 一张 A4 纸 */
+.odoc-page {
+  position: relative;
+  box-sizing: border-box;
+  width: 210mm;
+  min-height: 297mm;
+  background: var(--odoc-page-bg);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  /* 天头/订口/切口/地脚 = 版心外的四周白边 */
+  padding: 37mm 26mm 35mm 28mm;
+}
+
+/* 版心：可编辑区域 */
+.odoc-page .ProseMirror,
+.odoc-typearea {
+  box-sizing: border-box;
+  width: 156mm; /* 版心宽 */
+  min-height: 225mm; /* 版心高 */
+  outline: none;
+  /* 正文默认：3 号仿宋，固定行距 ≈ 28.8pt（每面 22 行） */
+  font-family: var(--odoc-font-fangsong);
+  font-size: 16pt;
+  line-height: 28.8pt;
+  color: #000;
+}
+
+.odoc-page .ProseMirror p {
+  margin: 0;
+}
+
+/* 红色分隔线（发文字号下方的反线 / 版记分隔线）：与版心等宽 */
+.odoc-page .ProseMirror hr,
+.odoc-separator {
+  border: none;
+  border-top: 1.5pt solid var(--odoc-red);
+  margin: 0.4em 0;
+}
+
+/* 可选：显示版心边界，便于核对版式 */
+.odoc-page--show-grid .ProseMirror {
+  outline: 1px dashed #c9ccd1;
+  outline-offset: 0;
+}
+
+/* 占位提示 */
+.odoc-page .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: #adb5bd;
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
