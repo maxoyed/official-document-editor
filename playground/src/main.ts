@@ -69,6 +69,7 @@ function mountEditor(paginated: boolean, content = redHeadDocumentTemplate() as 
     pagination: paginated,
   });
   editor.on("update", refreshPreview);
+  (window as unknown as { __editor: Editor }).__editor = editor; // 便于联调/验证
   refreshPreview();
 }
 

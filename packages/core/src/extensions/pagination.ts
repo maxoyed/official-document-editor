@@ -69,6 +69,7 @@ interface SpacerMetrics {
 function buildSpacer(m: SpacerMetrics): HTMLElement {
   const spacer = document.createElement("div");
   spacer.className = "odoc-page-break";
+  spacer.style.display = "block"; // 置于段落内部时强制断行，把后续行推至下一页
   spacer.style.height = `${m.spacerPx}px`;
   spacer.setAttribute("contenteditable", "false");
 
@@ -88,30 +89,53 @@ function buildSpacer(m: SpacerMetrics): HTMLElement {
 }
 
 /**
- * 测量顶层块的“自然位置”（剔除已插入 spacer 抬高的偏移），
- * 使 computePageBreaks 基于连续布局计算，保证幂等收敛、不多断页。
+ * 行级测量：取每个顶层块的逐行行盒（Range.getClientRects），换算为“自然位置”
+ * （减去其上方所有 spacer 高度，兼容嵌在段落内部的内联 spacer），并用 posAtCoords
+ * 求出每行起点的文档位置。据此即可在超长段落中间按行断页。
+ *
+ * 以行为单位喂给 computePageBreaks：断点落在某行起点时，若该行位于段落中部，
+ * 插入的分隔 widget 即把后续行推至下一页，实现段落跨页断行。
  */
-function measureBlocks(view: EditorView): { rects: BlockRect[]; positions: number[] } {
+function measureLines(view: EditorView): { rects: BlockRect[]; positions: number[] } {
   const rootRect = view.dom.getBoundingClientRect();
+
+  // 所有已插入的 spacer（含嵌套在段落内的内联 spacer）
+  const spacers = Array.from(view.dom.querySelectorAll<HTMLElement>(".odoc-page-break")).map(
+    (s) => {
+      const r = s.getBoundingClientRect();
+      return { top: r.top, h: r.height };
+    },
+  );
+  const offsetAbove = (yTop: number) =>
+    spacers.reduce((acc, s) => (s.top < yTop - 0.5 ? acc + s.h : acc), 0);
+
   const rects: BlockRect[] = [];
   const positions: number[] = [];
-
-  // 顶层块在文档中的起始位置
-  const offsets: number[] = [];
-  view.state.doc.forEach((_node, offset) => offsets.push(offset));
+  let lastPos = -1;
 
   const children = view.dom.children;
-  const count = Math.min(children.length, offsets.length);
-  let spacerOffset = 0; // 之前 spacer 抬高的累计高度
-  for (let i = 0; i < count; i++) {
+  for (let i = 0; i < children.length; i++) {
     const el = children[i] as HTMLElement;
-    if (el.classList.contains("odoc-page-break")) {
-      spacerOffset += el.getBoundingClientRect().height;
-      continue;
+    if (el.classList.contains("odoc-page-break")) continue;
+
+    // 取该块的行盒；空块/原子块退化为整块一行
+    let lineRects: DOMRect[] = [];
+    if (el.firstChild) {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      lineRects = Array.from(range.getClientRects());
     }
-    const r = el.getBoundingClientRect();
-    rects.push({ top: r.top - rootRect.top - spacerOffset, height: r.height });
-    positions.push(offsets[i]);
+    if (lineRects.length === 0) lineRects = [el.getBoundingClientRect()];
+
+    for (const lr of lineRects) {
+      if (lr.height < 1) continue;
+      const at = view.posAtCoords({ left: lr.left + 1, top: lr.top + lr.height / 2 });
+      if (!at) continue;
+      if (at.pos === lastPos) continue; // 同一行的重复行盒去重
+      lastPos = at.pos;
+      rects.push({ top: lr.top - rootRect.top - offsetAbove(lr.top), height: lr.height });
+      positions.push(at.pos);
+    }
   }
   return { rects, positions };
 }
@@ -159,13 +183,26 @@ export const Pagination = Extension.create<PaginationOptions>({
           const pageNumberOffsetPx = 7 * MM_TO_PX; // 版心下边缘距页码 7mm
 
           const recompute = () => {
-            const { rects, positions } = measureBlocks(view);
-            const { breaks } = computePageBreaks(rects, {
+            const { rects, positions } = measureLines(view);
+            const { breaks, pageCount } = computePageBreaks(rects, {
               pageContentPx: options.pageContentPx,
               breakExtraPx,
             });
 
-            const sig = signatureOf(breaks);
+            // 末页：补足整张 A4 白纸并编排末页页码
+            let tailRemaining = 0;
+            if (rects.length) {
+              const last = rects[rects.length - 1];
+              const lastPageStart = breaks.length
+                ? rects[breaks[breaks.length - 1].beforeIndex].top
+                : rects[0].top;
+              tailRemaining = Math.max(
+                0,
+                options.pageContentPx - (last.top + last.height - lastPageStart),
+              );
+            }
+
+            const sig = `${signatureOf(breaks)}#${pageCount}:${Math.round(tailRemaining)}`;
             if (sig === lastSignature) return;
             lastSignature = sig;
 
@@ -186,6 +223,27 @@ export const Pagination = Extension.create<PaginationOptions>({
                 { side: -1, key: `odoc-break-${b.beforeIndex}` },
               ),
             );
+
+            if (rects.length && options.showPageNumbers) {
+              // 末页补白：填满版心剩余 + 地脚（无页间空隙、无下一页天头），页码落于地脚
+              decos.push(
+                Decoration.widget(
+                  view.state.doc.content.size,
+                  () =>
+                    buildSpacer({
+                      spacerPx: tailRemaining + options.bottomMarginPx,
+                      remainingPx: tailRemaining,
+                      gapPx: 0,
+                      topMarginPx: 0,
+                      bottomMarginPx: options.bottomMarginPx,
+                      pageNumberOffsetPx,
+                      endingPageNo: pageCount,
+                      showPageNumbers: true,
+                    }),
+                  { side: 1, key: `odoc-tail-${pageCount}` },
+                ),
+              );
+            }
             const decorations = DecorationSet.create(view.state.doc, decos);
             const tr = view.state.tr.setMeta(pluginKey, { decorations } satisfies BreakMeta);
             view.dispatch(tr);
