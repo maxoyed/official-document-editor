@@ -9,6 +9,7 @@
     "build": "pnpm -r --filter \"./packages/*\" run build",
     "dev": "pnpm --filter playground run dev",
     "typecheck": "pnpm -r run typecheck",
+    "test": "pnpm -r run test",
     "clean": "pnpm -r exec rm -rf dist node_modules .turbo"
   },
   "engines": {

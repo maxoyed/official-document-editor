@@ -16,6 +16,10 @@
     "./spec": {
       "types": "./dist/spec/index.d.ts",
       "import": "./dist/spec/index.js"
+    },
+    "./pagination": {
+      "types": "./dist/pagination/index.d.ts",
+      "import": "./dist/pagination/index.js"
     }
   },
   "files": ["dist"],
@@ -23,7 +27,8 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "tsup && node --test --experimental-strip-types test/*.test.ts"
   },
   "dependencies": {
     "@tiptap/core": "^2.11.5",

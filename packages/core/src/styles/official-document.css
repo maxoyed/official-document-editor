@@ -86,3 +86,42 @@
   height: 0;
   pointer-events: none;
 }
+
+/* 页码：4 号半角宋体阿拉伯数字，编排于版心下边缘之下 7mm */
+.odoc-page-number {
+  font-family: var(--odoc-font-songti);
+  font-size: 14pt; /* 四号 */
+  color: #000;
+  white-space: nowrap;
+}
+
+/* 打印：每页一张 A4，去除画布背景与阴影，页码随页输出 */
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html,
+  body {
+    background: #fff;
+  }
+
+  .odoc-canvas {
+    background: #fff;
+    padding: 0;
+    gap: 0;
+    display: block;
+  }
+
+  .odoc-page {
+    box-shadow: none;
+    break-after: page;
+    page-break-after: always;
+  }
+
+  .odoc-page:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+}
