@@ -9,9 +9,10 @@ import Table from "@tiptap/extension-table";
 import TableRow from "@tiptap/extension-table-row";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
-import Image from "@tiptap/extension-image";
 import type { Extensions } from "@tiptap/core";
 import { OfficialRole } from "./official-role";
+import { OfficialImage } from "./official-image";
+import { HorizontalRuleVariant } from "./hr-variant";
 import { Pagination } from "./pagination";
 
 export interface OfficialExtensionsOptions {
@@ -31,15 +32,17 @@ export function getOfficialExtensions(options: OfficialExtensionsOptions = {}): 
     Color,
     TextAlign.configure({ types: ["paragraph"] }),
     OfficialRole.configure({ types: ["paragraph"] }),
+    HorizontalRuleVariant,
     Table.configure({ resizable: false }),
     TableRow,
     TableHeader,
     TableCell,
-    Image.configure({ allowBase64: true, inline: false }),
+    OfficialImage.configure({ allowBase64: true, inline: false }),
   ];
   if (options.pagination) extensions.push(Pagination);
   return extensions;
 }
 
-export { OfficialRole, Pagination };
+export { OfficialRole, Pagination, HorizontalRuleVariant, OfficialImage };
 export type { PaginationOptions } from "./pagination";
+export type { HrVariant } from "./hr-variant";
