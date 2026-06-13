@@ -3,7 +3,7 @@ import {
   createOfficialDocumentEditor,
   type Editor,
   type OfficialEditorOptions,
-} from "@odoc/core";
+} from "@maxoyed/ode-core";
 
 export interface UseOfficialEditorResult {
   /** 公文编辑器实例（挂载完成前为 null） */

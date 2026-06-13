@@ -4,7 +4,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import type { JSONContent } from "@tiptap/core";
-import { toDocxBuffer, fromDocx } from "@odoc/core/docx";
+import { toDocxBuffer, fromDocx } from "@maxoyed/ode-core/docx";
 
 const PNG_1x1 =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";

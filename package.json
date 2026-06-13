@@ -4,13 +4,27 @@
   "private": true,
   "description": "纯前端、headless 的中国党政机关公文编辑器（GB/T 9704-2012），开箱即用的公文版式，支持 docx 导入导出。",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maxoyed/official-document-editor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/maxoyed/official-document-editor/issues"
+  },
+  "homepage": "https://github.com/maxoyed/official-document-editor#readme",
   "packageManager": "pnpm@10.33.0",
   "scripts": {
     "build": "pnpm -r --filter \"./packages/*\" run build",
     "dev": "pnpm --filter playground run dev",
     "typecheck": "pnpm -r run typecheck",
     "test": "pnpm -r run test",
-    "clean": "pnpm -r exec rm -rf dist node_modules .turbo"
+    "clean": "pnpm -r exec rm -rf dist node_modules .turbo",
+    "changeset": "changeset",
+    "changeset:version": "changeset version",
+    "release": "pnpm -r --filter \"./packages/*\" run build && changeset publish"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.27.10"
   },
   "engines": {
     "node": ">=18"

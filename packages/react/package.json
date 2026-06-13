@@ -1,8 +1,22 @@
 {
-  "name": "@odoc/react",
+  "name": "@maxoyed/ode-react",
   "version": "0.0.1",
   "description": "公文编辑器 React 适配：<OfficialEditor /> 与 useOfficialEditor，开箱即公文版式。",
   "license": "MIT",
+  "author": "maxoyed <y@openingsource.org>",
+  "homepage": "https://github.com/maxoyed/official-document-editor#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maxoyed/official-document-editor.git",
+    "directory": "packages/react"
+  },
+  "bugs": {
+    "url": "https://github.com/maxoyed/official-document-editor/issues"
+  },
+  "keywords": ["公文", "公文编辑器", "official-document", "react", "tiptap", "docx", "GB/T 9704"],
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -13,14 +27,14 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist"],
+  "files": ["dist", "README.md", "LICENSE"],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@odoc/core": "workspace:*"
+    "@maxoyed/ode-core": "workspace:*"
   },
   "peerDependencies": {
     "react": ">=18"

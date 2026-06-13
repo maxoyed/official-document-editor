@@ -6,9 +6,9 @@ import {
   blocksFromDoc,
   type Editor,
   type OfficialElement,
-} from "@odoc/core";
-import { toDocxBlob, fromDocx } from "@odoc/core/docx";
-import "@odoc/core/styles.css";
+} from "@maxoyed/ode-core";
+import { toDocxBlob, fromDocx } from "@maxoyed/ode-core/docx";
+import "@maxoyed/ode-core/styles.css";
 import "./style.css";
 
 const app = document.querySelector<HTMLDivElement>("#app")!;

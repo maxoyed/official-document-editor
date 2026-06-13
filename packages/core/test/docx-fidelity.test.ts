@@ -4,8 +4,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import type { JSONContent } from "@tiptap/core";
-import { ELEMENT_SPEC, type OfficialElement } from "@odoc/core";
-import { toDocxBuffer, fromDocx } from "@odoc/core/docx";
+import { ELEMENT_SPEC, type OfficialElement } from "@maxoyed/ode-core";
+import { toDocxBuffer, fromDocx } from "@maxoyed/ode-core/docx";
 
 const text = (n: JSONContent): string =>
   (n.content ?? []).map((c) => c.text ?? "").join("");
