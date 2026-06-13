@@ -1,5 +1,8 @@
 # official-document-editor（公文编辑器）
 
+[![CI](https://github.com/maxoyed/official-document-editor/actions/workflows/ci.yml/badge.svg)](https://github.com/maxoyed/official-document-editor/actions/workflows/ci.yml)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+
 一款**纯前端、离线可用、headless** 的中国党政机关公文编辑器，默认排版即符合
 **GB/T 9704-2012《党政机关公文格式》**，基于 [Tiptap](https://tiptap.dev/)
 （ProseMirror）构建，与前端框架无关，可在 Vue / React / 原生中封装使用。
@@ -160,9 +163,26 @@ examples/          Vue / React 适配示例
 - [x] **docx 保真增强（一）**：命名样式（`w:pStyle`）无损往返 + 表格往返
 - [x] **docx 保真增强（二·图片）**：图片字节嵌入 `word/media` 并从 docx 抽取还原（往返保字节）
 - [x] **docx 保真增强（三）**：版记分隔线（红/黑变体）、合并单元格（colspan/rowspan）、印章（浮动叠加）
-- [ ] **框架适配层**：`@odoc/vue`、`@odoc/react` 薄封装
-- [ ] 印章、附件页、版记分隔线等要素的完整支持
+- [ ] 合并单元格更多场景、附件页、外部 docx 兼容性加固
 - [ ] 公文校验器（按 GB/T 9704 检查版式合规）
+
+## 发布的 npm 包
+
+| 包 | 说明 |
+| --- | --- |
+| [`@odoc/core`](./packages/core) | headless 核心（版式规范、编辑、分页、docx、字体插槽） |
+| [`@odoc/vue`](./packages/vue) | Vue 3 适配 `<OfficialEditor v-model>` |
+| [`@odoc/react`](./packages/react) | React 适配 `<OfficialEditor value/onChange>` |
+
+三个包采用统一版本，由 [Changesets](https://github.com/changesets/changesets) 管理。
+
+### 发布流程
+
+1. `pnpm changeset` 记录变更与版本类型；
+2. 合并到 `main` 后，Release 工作流自动开启「Version Packages」PR；
+3. 合并该 PR 即 `changeset publish` 发布到 npm（需在仓库 Secrets 配置 `NPM_TOKEN`）。
+
+CI（`.github/workflows/ci.yml`）在每次 push / PR 上跑 typecheck · test · build。
 
 ## 许可
 
