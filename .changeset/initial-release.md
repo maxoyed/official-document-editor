@@ -1,7 +1,7 @@
 ---
-"@odoc/core": minor
-"@odoc/vue": minor
-"@odoc/react": minor
+"@maxoyed/ode-core": minor
+"@maxoyed/ode-vue": minor
+"@maxoyed/ode-react": minor
 ---
 
 首个发布版本：headless 公文编辑器（GB/T 9704-2012）。

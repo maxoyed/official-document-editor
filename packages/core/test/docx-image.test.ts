@@ -5,8 +5,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { unzipSync } from "fflate";
 import type { JSONContent } from "@tiptap/core";
-import { toDocxBuffer, fromDocx } from "@odoc/core/docx";
-import { readImageSize } from "@odoc/core/docx";
+import { toDocxBuffer, fromDocx } from "@maxoyed/ode-core/docx";
+import { readImageSize } from "@maxoyed/ode-core/docx";
 
 // 1×1 透明 PNG
 const PNG_1x1_B64 =

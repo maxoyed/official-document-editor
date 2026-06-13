@@ -1,20 +1,20 @@
-# @odoc/core
+# @maxoyed/ode-core
 
 Headless 的中国党政机关**公文编辑器核心**，默认排版即符合 **GB/T 9704-2012《党政机关公文格式》**，基于 [Tiptap](https://tiptap.dev/)（ProseMirror）构建，与前端框架无关。纯前端、离线可用。
 
-> 框架封装见 [`@odoc/vue`](https://www.npmjs.com/package/@odoc/vue) / [`@odoc/react`](https://www.npmjs.com/package/@odoc/react)。
+> 框架封装见 [`@maxoyed/ode-vue`](https://www.npmjs.com/package/@maxoyed/ode-vue) / [`@maxoyed/ode-react`](https://www.npmjs.com/package/@maxoyed/ode-react)。
 
 ## 安装
 
 ```bash
-pnpm add @odoc/core
+pnpm add @maxoyed/ode-core
 ```
 
 ## 用法
 
 ```ts
-import { createOfficialDocumentEditor } from "@odoc/core";
-import "@odoc/core/styles.css";
+import { createOfficialDocumentEditor } from "@maxoyed/ode-core";
+import "@maxoyed/ode-core/styles.css";
 
 const editor = createOfficialDocumentEditor({
   element: document.querySelector("#page")!, // 一个 .odoc-page 容器
@@ -26,13 +26,13 @@ editor.chain().focus().setOfficialRole("title").run();
 
 子路径导出：
 
-- `@odoc/core/spec` — GB/T 9704-2012 版式规范（纯数据，零依赖）
-- `@odoc/core/pagination` — headless 分页引擎（纯函数）
-- `@odoc/core/docx` — docx 导入/导出（`toDocxBlob` / `fromDocx`）
+- `@maxoyed/ode-core/spec` — GB/T 9704-2012 版式规范（纯数据，零依赖）
+- `@maxoyed/ode-core/pagination` — headless 分页引擎（纯函数）
+- `@maxoyed/ode-core/docx` — docx 导入/导出（`toDocxBlob` / `fromDocx`）
 
 ```ts
-import { paginate, blocksFromDoc } from "@odoc/core/pagination";
-import { toDocxBlob, fromDocx } from "@odoc/core/docx";
+import { paginate, blocksFromDoc } from "@maxoyed/ode-core/pagination";
+import { toDocxBlob, fromDocx } from "@maxoyed/ode-core/docx";
 ```
 
 ## 能力

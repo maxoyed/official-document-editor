@@ -5,8 +5,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { unzipSync, strFromU8 } from "fflate";
 import type { JSONContent } from "@tiptap/core";
-import { redHeadDocumentTemplate } from "@odoc/core";
-import { toDocxBuffer, fromDocx } from "@odoc/core/docx";
+import { redHeadDocumentTemplate } from "@maxoyed/ode-core";
+import { toDocxBuffer, fromDocx } from "@maxoyed/ode-core/docx";
 
 function textOf(node: JSONContent): string {
   return (node.content ?? []).map((n) => n.text ?? "").join("");

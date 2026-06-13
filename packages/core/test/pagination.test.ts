@@ -1,5 +1,5 @@
 /**
- * 分页引擎单测。针对构建产物（@odoc/core）运行：先 build 再 node --test。
+ * 分页引擎单测。针对构建产物（@maxoyed/ode-core）运行：先 build 再 node --test。
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -12,7 +12,7 @@ import {
   pageNumberAlign,
   redHeadDocumentTemplate,
   type PaginationBlock,
-} from "@odoc/core";
+} from "@maxoyed/ode-core";
 
 test("页码格式：数字两侧各一条一字线", () => {
   assert.equal(formatPageNumber(1), "— 1 —");

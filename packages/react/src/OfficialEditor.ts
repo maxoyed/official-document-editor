@@ -9,7 +9,7 @@ import {
   createOfficialDocumentEditor,
   type Editor,
   type JSONContent,
-} from "@odoc/core";
+} from "@maxoyed/ode-core";
 
 export interface OfficialEditorProps {
   /** 受控内容（Tiptap JSON）。提供时随之同步。 */
@@ -34,7 +34,7 @@ export interface OfficialEditorHandle {
 
 /**
  * 公文编辑器 React 组件。渲染 .odoc-canvas > .odoc-page 结构，
- * 默认即符合 GB/T 9704-2012 版式。请记得引入 `@odoc/core/styles.css`。
+ * 默认即符合 GB/T 9704-2012 版式。请记得引入 `@maxoyed/ode-core/styles.css`。
  */
 export const OfficialEditor = forwardRef<OfficialEditorHandle, OfficialEditorProps>(
   function OfficialEditor(props, ref) {

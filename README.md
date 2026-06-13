@@ -18,23 +18,23 @@
 
 ## 已实现（MVP）
 
-- **GB/T 9704-2012 版式规范**（`@odoc/core/spec`，纯数据零依赖）
+- **GB/T 9704-2012 版式规范**（`@maxoyed/ode-core/spec`，纯数据零依赖）
   - A4 版心 156×225mm，天头 37mm / 订口 28mm / 切口 26mm / 地脚 35mm
   - 每面 22 行 × 每行 28 字、号制字号 ↔ 磅值换算
   - 各公文要素（份号、密级、发文机关标志、发文字号、标题、主送机关、
     正文与各级标题、署名、成文日期、版记、页码…）的字体/字号/对齐/缩进规格
 - **公文版式渲染 + 编辑**：开箱默认红头文件版式，可按要素角色排版
-- **精确分页引擎**（`@odoc/core/pagination`，纯函数零 DOM）：按「每面 22 行」模型
+- **精确分页引擎**（`@maxoyed/ode-core/pagination`，纯函数零 DOM）：按「每面 22 行」模型
   逐行计算分页、页数；页码按规范编排（4 号宋体、单页居右空一字 / 双页居左空一字）
 - **分页预览**（`renderPaginatedPreview`）：以真实 DOM 测量将内容流入 A4 页面，
   配合 `@media print` 一键打印 / 导出 PDF
 - **编辑器内联实时分页**（`Pagination` 扩展 / `createOfficialDocumentEditor({ pagination: true })`）：
   可编辑区即多页所见即所得，自动插入页间留白与页码
-- **docx 导入 / 导出**（`@odoc/core/docx`，纯前端离线）：导出符合公文版式的 .docx
+- **docx 导入 / 导出**（`@maxoyed/ode-core/docx`，纯前端离线）：导出符合公文版式的 .docx
   （A4 版心、各要素字体字号、固定行距、页码奇偶对齐）；**命名样式无损往返**
   （以 `w:pStyle` 标记要素，精确还原、连同规格要素也能区分）；支持**表格（含合并单元格）、
   图片（媒体嵌入/抽取）、印章（浮动叠加）、版记分隔线**
-- **框架适配**（`@odoc/vue` / `@odoc/react`）：开箱 `<OfficialEditor>` 组件，
+- **框架适配**（`@maxoyed/ode-vue` / `@maxoyed/ode-react`）：开箱 `<OfficialEditor>` 组件，
   Vue 走 `v-model`、React 走 `value/onChange`，headless core 之上薄封装
 - **字体插槽**（`registerFont`）：开源字体兜底 + 用户授权字体运行时注入
 - **可运行 Playground / Examples**：编辑+实时分页预览双栏；Vue/React 适配示例
@@ -60,8 +60,8 @@ pnpm build      # 构建 packages
 最小用法：
 
 ```ts
-import { createOfficialDocumentEditor } from "@odoc/core";
-import "@odoc/core/styles.css";
+import { createOfficialDocumentEditor } from "@maxoyed/ode-core";
+import "@maxoyed/ode-core/styles.css";
 
 const editor = createOfficialDocumentEditor({
   element: document.querySelector("#page")!, // 一个 .odoc-page 容器
@@ -74,13 +74,13 @@ editor.chain().focus().setOfficialRole("title").run();
 仅取版式规范（不引入编辑器，可用于服务端校验/导出）：
 
 ```ts
-import { Layout, ELEMENT_SPEC, toHalfPoint } from "@odoc/core/spec";
+import { Layout, ELEMENT_SPEC, toHalfPoint } from "@maxoyed/ode-core/spec";
 ```
 
 分页（headless，纯函数，可用于页数计算/导出/服务端）：
 
 ```ts
-import { paginate, countPages, blocksFromDoc } from "@odoc/core/pagination";
+import { paginate, countPages, blocksFromDoc } from "@maxoyed/ode-core/pagination";
 
 const blocks = blocksFromDoc(editor.getJSON());
 const pages = paginate(blocks); // 逐行分页结果（含跨页拆分）
@@ -90,7 +90,7 @@ console.log("共", countPages(blocks), "页");
 分页预览 + 打印（浏览器）：
 
 ```ts
-import { renderPaginatedPreview } from "@odoc/core";
+import { renderPaginatedPreview } from "@maxoyed/ode-core";
 renderPaginatedPreview(editor.getJSON(), document.querySelector("#preview")!);
 window.print(); // 配合 @media print，每页输出一张 A4
 ```
@@ -98,7 +98,7 @@ window.print(); // 配合 @media print，每页输出一张 A4
 docx 导入 / 导出（纯前端离线）：
 
 ```ts
-import { toDocxBlob, fromDocx } from "@odoc/core/docx";
+import { toDocxBlob, fromDocx } from "@maxoyed/ode-core/docx";
 
 // 导出：浏览器直接下载
 const blob = await toDocxBlob(editor.getJSON());
@@ -107,13 +107,13 @@ const blob = await toDocxBlob(editor.getJSON());
 editor.commands.setContent(fromDocx(await file.arrayBuffer()));
 ```
 
-Vue 3（`@odoc/vue`）：
+Vue 3（`@maxoyed/ode-vue`）：
 
 ```vue
 <script setup lang="ts">
 import { ref } from "vue";
-import { OfficialEditor } from "@odoc/vue";
-import "@odoc/core/styles.css";
+import { OfficialEditor } from "@maxoyed/ode-vue";
+import "@maxoyed/ode-core/styles.css";
 const doc = ref();
 </script>
 
@@ -122,12 +122,12 @@ const doc = ref();
 </template>
 ```
 
-React（`@odoc/react`）：
+React（`@maxoyed/ode-react`）：
 
 ```tsx
 import { useState } from "react";
-import { OfficialEditor } from "@odoc/react";
-import "@odoc/core/styles.css";
+import { OfficialEditor } from "@maxoyed/ode-react";
+import "@maxoyed/ode-core/styles.css";
 
 export default function App() {
   const [doc, setDoc] = useState();
@@ -139,7 +139,7 @@ export default function App() {
 
 ```
 packages/
-  core/            @odoc/core —— headless 公文核心
+  core/            @maxoyed/ode-core —— headless 公文核心
     src/spec/      GB/T 9704-2012 版式规范（纯数据）
     src/pagination/ 分页引擎 + 页码（headless，零 DOM）
     src/preview/   分页预览渲染器（浏览器）
@@ -148,8 +148,8 @@ packages/
     src/extensions/ Tiptap 公文要素扩展
     src/styles/    页面/版心样式 + 按 spec 生成的要素样式
     src/templates  公文模板（红头文件等）
-  vue/             @odoc/vue —— Vue 3 适配（<OfficialEditor v-model>）
-  react/           @odoc/react —— React 适配（<OfficialEditor value/onChange>）
+  vue/             @maxoyed/ode-vue —— Vue 3 适配（<OfficialEditor v-model>）
+  react/           @maxoyed/ode-react —— React 适配（<OfficialEditor value/onChange>）
 playground/        Vite 联调示例（原生）
 examples/          Vue / React 适配示例
 ```
@@ -159,7 +159,7 @@ examples/          Vue / React 适配示例
 - [x] **精确分页（引擎 + 预览）**：headless 逐行分页引擎、A4 分页预览、打印/导出 PDF、页码编排
 - [x] **docx 导入/导出**：纯前端 OOXML 生成与解析，公文版式映射、要素往返
 - [x] **编辑器内联分页**：可编辑区实时多页所见即所得 + 段落按行跨页断行 + 白纸背景 + 页码
-- [x] **框架适配层**：`@odoc/vue`、`@odoc/react` 薄封装（`<OfficialEditor>`）
+- [x] **框架适配层**：`@maxoyed/ode-vue`、`@maxoyed/ode-react` 薄封装（`<OfficialEditor>`）
 - [x] **docx 保真增强（一）**：命名样式（`w:pStyle`）无损往返 + 表格往返
 - [x] **docx 保真增强（二·图片）**：图片字节嵌入 `word/media` 并从 docx 抽取还原（往返保字节）
 - [x] **docx 保真增强（三）**：版记分隔线（红/黑变体）、合并单元格（colspan/rowspan）、印章（浮动叠加）
@@ -170,9 +170,9 @@ examples/          Vue / React 适配示例
 
 | 包 | 说明 |
 | --- | --- |
-| [`@odoc/core`](./packages/core) | headless 核心（版式规范、编辑、分页、docx、字体插槽） |
-| [`@odoc/vue`](./packages/vue) | Vue 3 适配 `<OfficialEditor v-model>` |
-| [`@odoc/react`](./packages/react) | React 适配 `<OfficialEditor value/onChange>` |
+| [`@maxoyed/ode-core`](./packages/core) | headless 核心（版式规范、编辑、分页、docx、字体插槽） |
+| [`@maxoyed/ode-vue`](./packages/vue) | Vue 3 适配 `<OfficialEditor v-model>` |
+| [`@maxoyed/ode-react`](./packages/react) | React 适配 `<OfficialEditor value/onChange>` |
 
 三个包采用统一版本，由 [Changesets](https://github.com/changesets/changesets) 管理，
 经 **npm Trusted Publishing（OIDC）** 从 GitHub Actions 免令牌发布。

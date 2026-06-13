@@ -14,13 +14,13 @@ importers:
 
   examples:
     dependencies:
-      '@odoc/core':
+      '@maxoyed/ode-core':
         specifier: workspace:*
         version: link:../packages/core
-      '@odoc/react':
+      '@maxoyed/ode-react':
         specifier: workspace:*
         version: link:../packages/react
-      '@odoc/vue':
+      '@maxoyed/ode-vue':
         specifier: workspace:*
         version: link:../packages/vue
       react:
@@ -94,7 +94,7 @@ importers:
 
   packages/react:
     dependencies:
-      '@odoc/core':
+      '@maxoyed/ode-core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -113,7 +113,7 @@ importers:
 
   packages/vue:
     dependencies:
-      '@odoc/core':
+      '@maxoyed/ode-core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -129,7 +129,7 @@ importers:
 
   playground:
     dependencies:
-      '@odoc/core':
+      '@maxoyed/ode-core':
         specifier: workspace:*
         version: link:../packages/core
       '@tiptap/core':

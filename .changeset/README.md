@@ -10,4 +10,4 @@
 
 首次发布需先手动发一版（npm 要求包已存在才能配置 Trusted Publisher），详见根 `README.md` 的「发布流程」。
 
-`@odoc/core`、`@odoc/vue`、`@odoc/react` 采用统一版本（fixed）。`playground`、`examples` 不发布。
+`@maxoyed/ode-core`、`@maxoyed/ode-vue`、`@maxoyed/ode-react` 采用统一版本（fixed）。`playground`、`examples` 不发布。

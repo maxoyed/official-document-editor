@@ -1,19 +1,19 @@
-# @odoc/react
+# @maxoyed/ode-react
 
 [公文编辑器](https://github.com/maxoyed/official-document-editor)的 **React 适配**——开箱即用的 `<OfficialEditor>` 组件，默认排版即符合 GB/T 9704-2012，纯前端离线。
 
 ## 安装
 
 ```bash
-pnpm add @odoc/react @odoc/core react
+pnpm add @maxoyed/ode-react @maxoyed/ode-core react
 ```
 
 ## 用法
 
 ```tsx
 import { useState } from "react";
-import { OfficialEditor } from "@odoc/react";
-import "@odoc/core/styles.css";
+import { OfficialEditor } from "@maxoyed/ode-react";
+import "@maxoyed/ode-core/styles.css";
 
 export default function App() {
   const [doc, setDoc] = useState();

@@ -1,11 +1,11 @@
-# @odoc/vue
+# @maxoyed/ode-vue
 
 [公文编辑器](https://github.com/maxoyed/official-document-editor)的 **Vue 3 适配**——开箱即用的 `<OfficialEditor>` 组件，默认排版即符合 GB/T 9704-2012，纯前端离线。
 
 ## 安装
 
 ```bash
-pnpm add @odoc/vue @odoc/core vue
+pnpm add @maxoyed/ode-vue @maxoyed/ode-core vue
 ```
 
 ## 用法
@@ -13,8 +13,8 @@ pnpm add @odoc/vue @odoc/core vue
 ```vue
 <script setup lang="ts">
 import { ref } from "vue";
-import { OfficialEditor } from "@odoc/vue";
-import "@odoc/core/styles.css";
+import { OfficialEditor } from "@maxoyed/ode-vue";
+import "@maxoyed/ode-core/styles.css";
 
 const doc = ref();
 </script>

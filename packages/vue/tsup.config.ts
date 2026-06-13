@@ -6,5 +6,5 @@ export default defineConfig({
   dts: true,
   sourcemap: true,
   clean: true,
-  external: ["vue", "@odoc/core"],
+  external: ["vue", "@maxoyed/ode-core"],
 });

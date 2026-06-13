@@ -1,9 +1,9 @@
 import { createElement } from "react";
 import { createRoot } from "react-dom/client";
-import { OfficialEditor as ReactOfficialEditor, type Editor } from "@odoc/react";
+import { OfficialEditor as ReactOfficialEditor, type Editor } from "@maxoyed/ode-react";
 import { createApp, h, ref } from "vue";
-import { OfficialEditor as VueOfficialEditor } from "@odoc/vue";
-import "@odoc/core/styles.css";
+import { OfficialEditor as VueOfficialEditor } from "@maxoyed/ode-vue";
+import "@maxoyed/ode-core/styles.css";
 
 declare global {
   interface Window {

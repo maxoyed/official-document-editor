@@ -3,7 +3,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { computePageBreaks, type BlockRect } from "@odoc/core";
+import { computePageBreaks, type BlockRect } from "@maxoyed/ode-core";
 
 const opts = { pageContentPx: 100, breakExtraPx: 20 };
 

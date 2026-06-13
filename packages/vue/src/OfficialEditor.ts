@@ -11,12 +11,12 @@ import {
   createOfficialDocumentEditor,
   type Editor,
   type JSONContent,
-} from "@odoc/core";
+} from "@maxoyed/ode-core";
 
 /**
  * 公文编辑器 Vue 3 组件。支持 v-model（Tiptap JSON），渲染
  * .odoc-canvas > .odoc-page 结构，默认即符合 GB/T 9704-2012 版式。
- * 请记得引入 `@odoc/core/styles.css`。
+ * 请记得引入 `@maxoyed/ode-core/styles.css`。
  *
  * 用法：<OfficialEditor v-model="doc" :pagination="true" @ready="onReady" />
  */
