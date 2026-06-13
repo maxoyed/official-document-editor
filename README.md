@@ -174,13 +174,27 @@ examples/          Vue / React 适配示例
 | [`@odoc/vue`](./packages/vue) | Vue 3 适配 `<OfficialEditor v-model>` |
 | [`@odoc/react`](./packages/react) | React 适配 `<OfficialEditor value/onChange>` |
 
-三个包采用统一版本，由 [Changesets](https://github.com/changesets/changesets) 管理。
+三个包采用统一版本，由 [Changesets](https://github.com/changesets/changesets) 管理，
+经 **npm Trusted Publishing（OIDC）** 从 GitHub Actions 免令牌发布。
 
 ### 发布流程
 
+**日常发布**（OIDC，无需 `NPM_TOKEN`）：
+
 1. `pnpm changeset` 记录变更与版本类型；
 2. 合并到 `main` 后，Release 工作流自动开启「Version Packages」PR；
-3. 合并该 PR 即 `changeset publish` 发布到 npm（需在仓库 Secrets 配置 `NPM_TOKEN`）。
+3. 合并该 PR，工作流即经 OIDC 自动 `changeset publish` 发布到 npm，并附带 provenance。
+
+**首次发布（一次性引导）**：npm 要求包**已存在**才能配置 Trusted Publisher，故第一版需手动发：
+
+```bash
+pnpm install && pnpm -r --filter "./packages/*" run build
+npm login
+pnpm -r --filter "./packages/*" publish --access public --no-git-checks
+```
+
+随后在 npmjs.com 每个包的 **Settings → Trusted Publisher** 配置：
+GitHub 仓库 `maxoyed/official-document-editor`、工作流文件 `release.yml`。此后即走上面的 OIDC 流程。
 
 CI（`.github/workflows/ci.yml`）在每次 push / PR 上跑 typecheck · test · build。
 

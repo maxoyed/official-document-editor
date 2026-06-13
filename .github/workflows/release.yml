@@ -9,7 +9,7 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 permissions:
   contents: write
   pull-requests: write
-  id-token: write
+  id-token: write # OIDC：npm Trusted Publishing 所需
 
 jobs:
   release:
@@ -27,10 +27,15 @@ jobs:
           cache: pnpm
           registry-url: https://registry.npmjs.org
 
+      # Trusted Publishing 需 npm >= 11.5（Node 22 自带的 npm 偏旧）
+      - name: Upgrade npm for OIDC trusted publishing
+        run: npm install -g npm@latest
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # 有 changeset 时发布 npm，否则打开/更新 "Version Packages" PR
+      # 有 changeset 时经 OIDC 发布 npm（无需 NPM_TOKEN），否则打开/更新 "Version Packages" PR。
+      # 注意：首次发布需先手动发一版（见 README「发布流程」），npm 才允许配置 Trusted Publisher。
       - name: Create Release PR or Publish
         uses: changesets/action@v1
         with:
@@ -38,6 +43,3 @@ jobs:
           publish: pnpm release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: "true"
