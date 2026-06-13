@@ -5,6 +5,7 @@ export default defineConfig({
     index: "src/index.ts",
     "spec/index": "src/spec/index.ts",
     "pagination/index": "src/pagination/index.ts",
+    "docx/index": "src/docx/index.ts",
   },
   format: ["esm"],
   dts: true,
@@ -19,12 +20,16 @@ export default defineConfig({
     "@tiptap/extension-text-style",
     "@tiptap/extension-text-align",
     "@tiptap/extension-color",
+    "docx",
+    "fflate",
+    "fast-xml-parser",
   ],
   esbuildOptions(options) {
     options.entryPoints = {
       index: "src/index.ts",
       "spec/index": "src/spec/index.ts",
       "pagination/index": "src/pagination/index.ts",
+      "docx/index": "src/docx/index.ts",
       styles: "src/styles/official-document.css",
     };
   },
