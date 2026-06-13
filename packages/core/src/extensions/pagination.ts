@@ -44,25 +44,53 @@ function buildPageNumberEl(pageNo: number): HTMLElement {
   el.className = "odoc-inline-page-number";
   el.textContent = style.text;
   el.style.position = "absolute";
-  el.style.bottom = `${MARGIN_MM.bottom * MM_TO_PX}px`;
+  // spacer 为全幅（含订口/切口），故页码自纸张边缘内缩 切口/订口 + 空一字
   if (style.align === "right") {
-    el.style.right = `${style.insetMm * MM_TO_PX}px`;
+    el.style.right = `${(MARGIN_MM.right + style.insetMm) * MM_TO_PX}px`;
   } else {
-    el.style.left = `${style.insetMm * MM_TO_PX}px`;
+    el.style.left = `${(MARGIN_MM.left + style.insetMm) * MM_TO_PX}px`;
   }
   return el;
 }
 
-function buildSpacer(spacerPx: number, endingPageNo: number, showPageNumbers: boolean): HTMLElement {
+interface SpacerMetrics {
+  spacerPx: number;
+  /** 上一页版心剩余空白（白），= spacerPx - breakExtraPx */
+  remainingPx: number;
+  gapPx: number;
+  topMarginPx: number;
+  bottomMarginPx: number;
+  /** 版心下边缘距页码 7mm 的像素值 */
+  pageNumberOffsetPx: number;
+  endingPageNo: number;
+  showPageNumbers: boolean;
+}
+
+function buildSpacer(m: SpacerMetrics): HTMLElement {
   const spacer = document.createElement("div");
   spacer.className = "odoc-page-break";
-  spacer.style.height = `${spacerPx}px`;
+  spacer.style.height = `${m.spacerPx}px`;
   spacer.setAttribute("contenteditable", "false");
-  if (showPageNumbers) spacer.appendChild(buildPageNumberEl(endingPageNo));
+
+  // 纵向构成：白(上一页剩余版心 + 地脚) → 灰(页间空隙) → 白(下一页天头)
+  const whiteTop = m.remainingPx + m.bottomMarginPx;
+  const grey = m.gapPx;
+  spacer.style.background = `linear-gradient(to bottom, var(--odoc-page-bg) 0 ${whiteTop}px, var(--odoc-canvas-bg) ${whiteTop}px ${whiteTop + grey}px, var(--odoc-page-bg) ${whiteTop + grey}px 100%)`;
+
+  if (m.showPageNumbers) {
+    const num = buildPageNumberEl(m.endingPageNo);
+    // 页码位于上一页版心下边缘之下 7mm
+    num.style.top = `${m.remainingPx + m.pageNumberOffsetPx}px`;
+    num.style.bottom = "";
+    spacer.appendChild(num);
+  }
   return spacer;
 }
 
-/** 测量顶层块的自然位置。 */
+/**
+ * 测量顶层块的“自然位置”（剔除已插入 spacer 抬高的偏移），
+ * 使 computePageBreaks 基于连续布局计算，保证幂等收敛、不多断页。
+ */
 function measureBlocks(view: EditorView): { rects: BlockRect[]; positions: number[] } {
   const rootRect = view.dom.getBoundingClientRect();
   const rects: BlockRect[] = [];
@@ -74,11 +102,15 @@ function measureBlocks(view: EditorView): { rects: BlockRect[]; positions: numbe
 
   const children = view.dom.children;
   const count = Math.min(children.length, offsets.length);
+  let spacerOffset = 0; // 之前 spacer 抬高的累计高度
   for (let i = 0; i < count; i++) {
     const el = children[i] as HTMLElement;
-    if (el.classList.contains("odoc-page-break")) continue; // 跳过已插入的间隔
+    if (el.classList.contains("odoc-page-break")) {
+      spacerOffset += el.getBoundingClientRect().height;
+      continue;
+    }
     const r = el.getBoundingClientRect();
-    rects.push({ top: r.top - rootRect.top, height: r.height });
+    rects.push({ top: r.top - rootRect.top - spacerOffset, height: r.height });
     positions.push(offsets[i]);
   }
   return { rects, positions };
@@ -124,6 +156,7 @@ export const Pagination = Extension.create<PaginationOptions>({
         },
         view(view) {
           const breakExtraPx = options.bottomMarginPx + options.pageGapPx + options.topMarginPx;
+          const pageNumberOffsetPx = 7 * MM_TO_PX; // 版心下边缘距页码 7mm
 
           const recompute = () => {
             const { rects, positions } = measureBlocks(view);
@@ -139,7 +172,17 @@ export const Pagination = Extension.create<PaginationOptions>({
             const decos = breaks.map((b) =>
               Decoration.widget(
                 positions[b.beforeIndex],
-                () => buildSpacer(b.spacerPx, b.pageNo - 1, options.showPageNumbers),
+                () =>
+                  buildSpacer({
+                    spacerPx: b.spacerPx,
+                    remainingPx: Math.max(0, b.spacerPx - breakExtraPx),
+                    gapPx: options.pageGapPx,
+                    topMarginPx: options.topMarginPx,
+                    bottomMarginPx: options.bottomMarginPx,
+                    pageNumberOffsetPx,
+                    endingPageNo: b.pageNo - 1,
+                    showPageNumbers: options.showPageNumbers,
+                  }),
                 { side: -1, key: `odoc-break-${b.beforeIndex}` },
               ),
             );

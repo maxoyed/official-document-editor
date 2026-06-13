@@ -96,16 +96,11 @@
   white-space: nowrap;
 }
 
-/* 编辑器内联分页：分页间隔（页与页之间的留白），承载上一页页码 */
+/* 编辑器内联分页：分页间隔。纵向渐变还原“上一页地脚(白)→页间空隙(灰)→下一页天头(白)”，
+   页码落在上一页版心下边缘之下。背景渐变由插件按各页剩余高度内联设置。 */
 .odoc-page-break {
   position: relative;
-  width: 100%;
-  margin: 0 calc(-1 * 26mm) 0 calc(-1 * 28mm); /* 抵消版心左右白边，占满整页宽 */
-  padding: 0 26mm 0 28mm;
-  box-sizing: content-box;
-  background: var(--odoc-canvas-bg);
-  border-top: 1px dashed #c9ccd1;
-  border-bottom: 1px dashed #c9ccd1;
+  margin: 0 calc(-1 * 26mm) 0 calc(-1 * 28mm); /* 全幅，抵消版心左右白边 */
   user-select: none;
 }
 
