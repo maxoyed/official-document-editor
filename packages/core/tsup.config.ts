@@ -1,0 +1,29 @@
+import { defineConfig } from "tsup";
+
+export default defineConfig({
+  entry: {
+    index: "src/index.ts",
+    "spec/index": "src/spec/index.ts",
+  },
+  format: ["esm"],
+  dts: true,
+  sourcemap: true,
+  clean: true,
+  // 公文版式样式表一起打包到 dist/styles.css，供使用方按需引入
+  loader: { ".css": "copy" },
+  external: [
+    "@tiptap/core",
+    "@tiptap/pm",
+    "@tiptap/starter-kit",
+    "@tiptap/extension-text-style",
+    "@tiptap/extension-text-align",
+    "@tiptap/extension-color",
+  ],
+  esbuildOptions(options) {
+    options.entryPoints = {
+      index: "src/index.ts",
+      "spec/index": "src/spec/index.ts",
+      styles: "src/styles/official-document.css",
+    };
+  },
+});
