@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@odoc/react & @odoc/vue 适配示例</title>
+    <style>
+      body { margin: 0; font-family: system-ui, "PingFang SC", "Microsoft YaHei", sans-serif; }
+      .cols { display: grid; grid-template-columns: 1fr 1fr; height: 100vh; }
+      .col { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid #e3e5e8; }
+      .col > h3 { margin: 0; padding: 8px 12px; font-size: 13px; background: #fafafa; border-bottom: 1px solid #eee; }
+      .col > div { flex: 1; overflow: auto; }
+    </style>
+  </head>
+  <body>
+    <div class="cols">
+      <section class="col"><h3>@odoc/react</h3><div id="react"></div></section>
+      <section class="col"><h3>@odoc/vue</h3><div id="vue"></div></section>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
