@@ -7,14 +7,17 @@ import TextAlign from "@tiptap/extension-text-align";
 import Color from "@tiptap/extension-color";
 import type { Extensions } from "@tiptap/core";
 import { OfficialRole } from "./official-role";
+import { Pagination } from "./pagination";
 
 export interface OfficialExtensionsOptions {
   /** 占位提示文字 */
   placeholder?: string;
+  /** 是否启用编辑器内联实时分页（默认关闭，需浏览器环境） */
+  pagination?: boolean;
 }
 
-export function getOfficialExtensions(_options: OfficialExtensionsOptions = {}): Extensions {
-  return [
+export function getOfficialExtensions(options: OfficialExtensionsOptions = {}): Extensions {
+  const extensions: Extensions = [
     StarterKit.configure({
       // 公文标题层级用 officialRole 表达，禁用通用 heading 以免样式冲突
       heading: false,
@@ -24,6 +27,9 @@ export function getOfficialExtensions(_options: OfficialExtensionsOptions = {}):
     TextAlign.configure({ types: ["paragraph"] }),
     OfficialRole.configure({ types: ["paragraph"] }),
   ];
+  if (options.pagination) extensions.push(Pagination);
+  return extensions;
 }
 
-export { OfficialRole };
+export { OfficialRole, Pagination };
+export type { PaginationOptions } from "./pagination";

@@ -95,6 +95,26 @@
   white-space: nowrap;
 }
 
+/* 编辑器内联分页：分页间隔（页与页之间的留白），承载上一页页码 */
+.odoc-page-break {
+  position: relative;
+  width: 100%;
+  margin: 0 calc(-1 * 26mm) 0 calc(-1 * 28mm); /* 抵消版心左右白边，占满整页宽 */
+  padding: 0 26mm 0 28mm;
+  box-sizing: content-box;
+  background: var(--odoc-canvas-bg);
+  border-top: 1px dashed #c9ccd1;
+  border-bottom: 1px dashed #c9ccd1;
+  user-select: none;
+}
+
+.odoc-inline-page-number {
+  font-family: var(--odoc-font-songti);
+  font-size: 14pt; /* 四号 */
+  color: #000;
+  white-space: nowrap;
+}
+
 /* 打印：每页一张 A4，去除画布背景与阴影，页码随页输出 */
 @media print {
   @page {
