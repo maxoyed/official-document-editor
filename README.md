@@ -25,6 +25,8 @@
   逐行计算分页、页数；页码按规范编排（4 号宋体、单页居右空一字 / 双页居左空一字）
 - **分页预览**（`renderPaginatedPreview`）：以真实 DOM 测量将内容流入 A4 页面，
   配合 `@media print` 一键打印 / 导出 PDF
+- **docx 导入 / 导出**（`@odoc/core/docx`，纯前端离线）：导出符合公文版式的 .docx
+  （A4 版心、各要素字体字号、固定行距、页码奇偶对齐）；导入按字体/字号/对齐反推要素
 - **字体插槽**（`registerFont`）：开源字体兜底 + 用户授权字体运行时注入
 - **可运行 Playground**：编辑 + 实时分页预览双栏联调
 
@@ -84,6 +86,18 @@ renderPaginatedPreview(editor.getJSON(), document.querySelector("#preview")!);
 window.print(); // 配合 @media print，每页输出一张 A4
 ```
 
+docx 导入 / 导出（纯前端离线）：
+
+```ts
+import { toDocxBlob, fromDocx } from "@odoc/core/docx";
+
+// 导出：浏览器直接下载
+const blob = await toDocxBlob(editor.getJSON());
+
+// 导入：读入 .docx 还原为编辑器内容
+editor.commands.setContent(fromDocx(await file.arrayBuffer()));
+```
+
 ## 工程结构
 
 ```
@@ -92,6 +106,7 @@ packages/
     src/spec/      GB/T 9704-2012 版式规范（纯数据）
     src/pagination/ 分页引擎 + 页码（headless，零 DOM）
     src/preview/   分页预览渲染器（浏览器）
+    src/docx/      docx 导入/导出（OOXML 映射，纯前端）
     src/fonts/     字体插槽（registerFont）
     src/extensions/ Tiptap 公文要素扩展
     src/styles/    页面/版心样式 + 按 spec 生成的要素样式
@@ -102,8 +117,9 @@ playground/        Vite 联调示例
 ## 路线图
 
 - [x] **精确分页（引擎 + 预览）**：headless 逐行分页引擎、A4 分页预览、打印/导出 PDF、页码编排
+- [x] **docx 导入/导出**：纯前端 OOXML 生成与解析，公文版式映射、要素往返
 - [ ] **编辑器内联分页**：在可编辑区内实时所见即所得分页（含超长段落跨页断行）
-- [ ] **docx 导入/导出**：基于自定义模型 ↔ OOXML 双向映射，无损还原公文版式
+- [ ] **docx 保真增强**：表格、图片、印章、版记分隔线、自定义样式名无损往返
 - [ ] **框架适配层**：`@odoc/vue`、`@odoc/react` 薄封装
 - [ ] 印章、附件页、版记分隔线等要素的完整支持
 - [ ] 公文校验器（按 GB/T 9704 检查版式合规）

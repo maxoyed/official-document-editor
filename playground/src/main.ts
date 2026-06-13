@@ -7,6 +7,7 @@ import {
   type Editor,
   type OfficialElement,
 } from "@odoc/core";
+import { toDocxBlob, fromDocx } from "@odoc/core/docx";
 import "@odoc/core/styles.css";
 import "./style.css";
 
@@ -26,7 +27,10 @@ app.innerHTML = `
     <span class="pagecount" id="pagecount"></span>
     <button data-cmd="fill">填充长文</button>
     <button data-cmd="reset">载入红头模板</button>
+    <button data-cmd="import">导入 docx</button>
+    <button data-cmd="export">导出 docx</button>
     <button data-cmd="print">打印 / 导出 PDF</button>
+    <input type="file" id="file" accept=".docx" hidden />
   </div>
   <div class="panes">
     <section class="pane">
@@ -90,6 +94,27 @@ cmd("fill").addEventListener("click", () => {
   }
   chain.run();
   refreshPreview();
+});
+
+cmd("export").addEventListener("click", async () => {
+  const blob = await toDocxBlob(editor.getJSON());
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "公文.docx";
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+const fileInput = document.querySelector<HTMLInputElement>("#file")!;
+cmd("import").addEventListener("click", () => fileInput.click());
+fileInput.addEventListener("change", async () => {
+  const file = fileInput.files?.[0];
+  if (!file) return;
+  const buf = await file.arrayBuffer();
+  editor.commands.setContent(fromDocx(buf));
+  refreshPreview();
+  fileInput.value = "";
 });
 
 cmd("print").addEventListener("click", () => {
