@@ -60,7 +60,8 @@
   color: #000;
 }
 
-.odoc-page .ProseMirror p {
+.odoc-page .ProseMirror p,
+.odoc-typearea p {
   margin: 0;
 }
 
