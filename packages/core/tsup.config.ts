@@ -4,6 +4,7 @@ export default defineConfig({
   entry: {
     index: "src/index.ts",
     "spec/index": "src/spec/index.ts",
+    "pagination/index": "src/pagination/index.ts",
   },
   format: ["esm"],
   dts: true,
@@ -23,6 +24,7 @@ export default defineConfig({
     options.entryPoints = {
       index: "src/index.ts",
       "spec/index": "src/spec/index.ts",
+      "pagination/index": "src/pagination/index.ts",
       styles: "src/styles/official-document.css",
     };
   },

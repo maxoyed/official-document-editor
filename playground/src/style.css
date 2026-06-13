@@ -43,6 +43,56 @@ body {
   border-color: #b9bdc4;
 }
 
+.toolbar .pagecount {
+  font-size: 12px;
+  color: #6b7280;
+  margin-right: 8px;
+}
+
+.panes {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 0;
+}
+
+.pane {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid #e3e5e8;
+}
+
+.pane > header {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #4b5563;
+  background: #fafafa;
+  border-bottom: 1px solid #eceef0;
+}
+
+.pane > .odoc-canvas,
+.pane > #preview {
+  flex: 1;
+  overflow: auto;
+}
+
 .odoc-canvas {
   flex: 1;
+}
+
+/* 打印时只输出分页预览 */
+@media print {
+  .toolbar,
+  .pane:first-child,
+  .pane > header {
+    display: none !important;
+  }
+  .panes {
+    display: block;
+  }
+  .pane {
+    border: none;
+  }
 }

@@ -11,6 +11,7 @@
  *       要素样式由 createOfficialDocumentEditor 自动注入。
  */
 export * from "./spec";
+export * from "./pagination";
 export * from "./extensions";
 export * from "./templates";
 export { createOfficialDocumentEditor } from "./editor";
@@ -18,6 +19,8 @@ export type { OfficialEditorOptions } from "./editor";
 export { registerFont } from "./fonts/register";
 export type { RegisterFontOptions } from "./fonts/register";
 export { injectOfficialStyles, buildElementStyles } from "./styles/inject";
+export { renderPaginatedPreview } from "./preview/paginated";
+export type { PaginatedPreviewOptions } from "./preview/paginated";
 
 // 透传常用 Tiptap 类型，便于使用方
 export type { Editor, JSONContent } from "@tiptap/core";

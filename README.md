@@ -21,8 +21,12 @@
   - 各公文要素（份号、密级、发文机关标志、发文字号、标题、主送机关、
     正文与各级标题、署名、成文日期、版记、页码…）的字体/字号/对齐/缩进规格
 - **公文版式渲染 + 编辑**：开箱默认红头文件版式，可按要素角色排版
+- **精确分页引擎**（`@odoc/core/pagination`，纯函数零 DOM）：按「每面 22 行」模型
+  逐行计算分页、页数；页码按规范编排（4 号宋体、单页居右空一字 / 双页居左空一字）
+- **分页预览**（`renderPaginatedPreview`）：以真实 DOM 测量将内容流入 A4 页面，
+  配合 `@media print` 一键打印 / 导出 PDF
 - **字体插槽**（`registerFont`）：开源字体兜底 + 用户授权字体运行时注入
-- **可运行 Playground**：`packages` 之外的 `playground` 直接联调
+- **可运行 Playground**：编辑 + 实时分页预览双栏联调
 
 ## 字体与版权（重要）
 
@@ -62,12 +66,32 @@ editor.chain().focus().setOfficialRole("title").run();
 import { Layout, ELEMENT_SPEC, toHalfPoint } from "@odoc/core/spec";
 ```
 
+分页（headless，纯函数，可用于页数计算/导出/服务端）：
+
+```ts
+import { paginate, countPages, blocksFromDoc } from "@odoc/core/pagination";
+
+const blocks = blocksFromDoc(editor.getJSON());
+const pages = paginate(blocks); // 逐行分页结果（含跨页拆分）
+console.log("共", countPages(blocks), "页");
+```
+
+分页预览 + 打印（浏览器）：
+
+```ts
+import { renderPaginatedPreview } from "@odoc/core";
+renderPaginatedPreview(editor.getJSON(), document.querySelector("#preview")!);
+window.print(); // 配合 @media print，每页输出一张 A4
+```
+
 ## 工程结构
 
 ```
 packages/
   core/            @odoc/core —— headless 公文核心
     src/spec/      GB/T 9704-2012 版式规范（纯数据）
+    src/pagination/ 分页引擎 + 页码（headless，零 DOM）
+    src/preview/   分页预览渲染器（浏览器）
     src/fonts/     字体插槽（registerFont）
     src/extensions/ Tiptap 公文要素扩展
     src/styles/    页面/版心样式 + 按 spec 生成的要素样式
@@ -77,8 +101,9 @@ playground/        Vite 联调示例
 
 ## 路线图
 
+- [x] **精确分页（引擎 + 预览）**：headless 逐行分页引擎、A4 分页预览、打印/导出 PDF、页码编排
+- [ ] **编辑器内联分页**：在可编辑区内实时所见即所得分页（含超长段落跨页断行）
 - [ ] **docx 导入/导出**：基于自定义模型 ↔ OOXML 双向映射，无损还原公文版式
-- [ ] **精确分页**：每面 22 行的实时所见即所得分页（含红头/版记/页码自动编排）
 - [ ] **框架适配层**：`@odoc/vue`、`@odoc/react` 薄封装
 - [ ] 印章、附件页、版记分隔线等要素的完整支持
 - [ ] 公文校验器（按 GB/T 9704 检查版式合规）
