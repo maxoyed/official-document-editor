@@ -65,6 +65,29 @@
   margin: 0;
 }
 
+/* 公文表格：全框线、仿宋、单元格内容居中（编辑区与预览区共用） */
+.odoc-typearea table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.4em 0;
+  table-layout: fixed;
+}
+
+.odoc-typearea th,
+.odoc-typearea td {
+  border: 1px solid #000;
+  padding: 2px 6px;
+  vertical-align: middle;
+  font-family: var(--odoc-font-fangsong);
+  font-size: 16pt; /* 三号 */
+  white-space: pre-wrap;
+}
+
+.odoc-typearea th {
+  font-family: var(--odoc-font-heiti);
+  text-align: center;
+}
+
 /* 红色分隔线（发文字号下方的反线 / 版记分隔线）：与版心等宽 */
 .odoc-page .ProseMirror hr,
 .odoc-separator {

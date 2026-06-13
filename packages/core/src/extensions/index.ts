@@ -5,6 +5,10 @@ import StarterKit from "@tiptap/starter-kit";
 import TextStyle from "@tiptap/extension-text-style";
 import TextAlign from "@tiptap/extension-text-align";
 import Color from "@tiptap/extension-color";
+import Table from "@tiptap/extension-table";
+import TableRow from "@tiptap/extension-table-row";
+import TableCell from "@tiptap/extension-table-cell";
+import TableHeader from "@tiptap/extension-table-header";
 import type { Extensions } from "@tiptap/core";
 import { OfficialRole } from "./official-role";
 import { Pagination } from "./pagination";
@@ -26,6 +30,10 @@ export function getOfficialExtensions(options: OfficialExtensionsOptions = {}): 
     Color,
     TextAlign.configure({ types: ["paragraph"] }),
     OfficialRole.configure({ types: ["paragraph"] }),
+    Table.configure({ resizable: false }),
+    TableRow,
+    TableHeader,
+    TableCell,
   ];
   if (options.pagination) extensions.push(Pagination);
   return extensions;

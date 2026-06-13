@@ -27,6 +27,7 @@ app.innerHTML = `
     <label class="toggle"><input type="checkbox" id="inline-paging" /> 内联分页</label>
     <span class="pagecount" id="pagecount"></span>
     <button data-cmd="fill">填充长文</button>
+    <button data-cmd="table">插入表格</button>
     <button data-cmd="reset">载入红头模板</button>
     <button data-cmd="import">导入 docx</button>
     <button data-cmd="export">导出 docx</button>
@@ -69,7 +70,11 @@ function mountEditor(paginated: boolean, content = redHeadDocumentTemplate() as 
     pagination: paginated,
   });
   editor.on("update", refreshPreview);
-  (window as unknown as { __editor: Editor }).__editor = editor; // 便于联调/验证
+  // 便于联调/验证
+  Object.assign(window as unknown as Record<string, unknown>, {
+    __editor: editor,
+    __docx: { toDocxBlob, fromDocx },
+  });
   refreshPreview();
 }
 
@@ -108,6 +113,15 @@ cmd("fill").addEventListener("click", () => {
     }));
   }
   chain.run();
+  refreshPreview();
+});
+
+cmd("table").addEventListener("click", () => {
+  editor
+    .chain()
+    .focus()
+    .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+    .run();
   refreshPreview();
 });
 
