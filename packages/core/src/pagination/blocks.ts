@@ -18,6 +18,10 @@ export function blocksFromDoc(doc: JSONContent): PaginationBlock[] {
     if (node.type === "horizontalRule") {
       return { atomic: true } as PaginationBlock;
     }
+    if (node.type === "table") {
+      // 表格不参与按行拆分；以全部文字粗估高度
+      return { atomic: true, text: textOf(node) } satisfies PaginationBlock;
+    }
     const role = node.attrs?.officialRole as OfficialElement | undefined;
     return { role, text: textOf(node) } satisfies PaginationBlock;
   });

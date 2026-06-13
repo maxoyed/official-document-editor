@@ -28,6 +28,22 @@ function renderBlock(node: JSONContent): HTMLElement {
     hr.className = "odoc-separator";
     return hr;
   }
+  if (node.type === "table") {
+    const table = document.createElement("table");
+    for (const row of node.content ?? []) {
+      const tr = document.createElement("tr");
+      for (const cell of row.content ?? []) {
+        const td = document.createElement(cell.type === "tableHeader" ? "th" : "td");
+        const text = (cell.content ?? [])
+          .map((p) => (p.content ?? []).map((t) => t.text ?? "").join(""))
+          .join("\n");
+        td.textContent = text;
+        tr.appendChild(td);
+      }
+      table.appendChild(tr);
+    }
+    return table;
+  }
   const p = document.createElement("p");
   const role = node.attrs?.officialRole as OfficialElement | undefined;
   if (role) {

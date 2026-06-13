@@ -14,7 +14,12 @@ import {
   Packer,
   PageNumber,
   Paragraph,
+  Table,
+  TableCell,
+  TableRow,
   TextRun,
+  WidthType,
+  type IParagraphStyleOptions,
   type ISectionOptions,
   type IParagraphOptions,
 } from "docx";
@@ -26,6 +31,12 @@ import { DOCX_FONT_NAME } from "./font-map";
 import { mmToTwip, ptToTwip } from "./units";
 
 const DEFAULT_ROLE: OfficialElement = "body";
+
+/** 段落样式 id：用于在 docx 中以命名样式标记公文要素，实现无损往返。 */
+export const STYLE_ID_PREFIX = "odoc-";
+export function styleIdFor(role: OfficialElement): string {
+  return `${STYLE_ID_PREFIX}${role}`;
+}
 
 function alignmentOf(spec: ElementSpec): (typeof AlignmentType)[keyof typeof AlignmentType] | undefined {
   switch (spec.align) {
@@ -61,6 +72,7 @@ function paragraphForRole(role: OfficialElement, text: string): Paragraph {
   };
 
   return new Paragraph({
+    style: styleIdFor(role), // 命名样式，便于 Word 识别与无损往返
     alignment: alignmentOf(spec),
     indent: Object.keys(indent).length ? indent : undefined,
     // 正文固定行距按规范（每面 22 行）；标题等沿用同一固定行距，保证版式稳定
@@ -74,6 +86,66 @@ function paragraphForRole(role: OfficialElement, text: string): Paragraph {
         color: (spec.color ?? "#000000").replace("#", ""),
       }),
     ],
+  });
+}
+
+/** 依 ELEMENT_SPEC 生成全部公文要素的命名段落样式（写入 styles.xml）。 */
+function buildParagraphStyles(): IParagraphStyleOptions[] {
+  return (Object.keys(ELEMENT_SPEC) as OfficialElement[]).map((role) => {
+    const spec = ELEMENT_SPEC[role];
+    const sizePt = toPt(spec.size);
+    const fontName = DOCX_FONT_NAME[spec.font];
+    const indent: NonNullable<IParagraphOptions["indent"]> = {
+      ...(spec.indent ? { firstLine: ptToTwip(spec.indent * sizePt) } : {}),
+      ...(spec.marginLeft ? { left: ptToTwip(spec.marginLeft * sizePt) } : {}),
+      ...(spec.marginRight ? { right: ptToTwip(spec.marginRight * sizePt) } : {}),
+    };
+    return {
+      id: styleIdFor(role),
+      name: `ODOC ${role}`,
+      basedOn: "Normal",
+      next: styleIdFor(DEFAULT_ROLE),
+      quickFormat: true,
+      run: {
+        font: { ascii: fontName, eastAsia: fontName, hAnsi: fontName },
+        size: toHalfPoint(spec.size),
+        bold: spec.bold,
+        color: (spec.color ?? "#000000").replace("#", ""),
+      },
+      paragraph: {
+        alignment: alignmentOf(spec),
+        indent: Object.keys(indent).length ? indent : undefined,
+        spacing: { line: ptToTwip(LINE_HEIGHT_MM / PT_TO_MM), lineRule: LineRuleType.EXACT },
+      },
+    } satisfies IParagraphStyleOptions;
+  });
+}
+
+/** 表格节点 → docx Table（全框线，单元格内段落沿用其要素角色，缺省正文）。 */
+function tableForNode(node: JSONContent): Table {
+  const rows = (node.content ?? []).filter((r) => r.type === "tableRow");
+  const border = { style: BorderStyle.SINGLE, size: 4, color: "000000" } as const;
+  return new Table({
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    borders: { top: border, bottom: border, left: border, right: border, insideHorizontal: border, insideVertical: border },
+    rows: rows.map(
+      (row) =>
+        new TableRow({
+          children: (row.content ?? [])
+            .filter((c) => c.type === "tableCell" || c.type === "tableHeader")
+            .map((cell) => {
+              const paras = (cell.content ?? []).filter((n) => n.type === "paragraph");
+              const children = (paras.length ? paras : [{ type: "paragraph" } as JSONContent]).map(
+                (p) =>
+                  paragraphForRole(
+                    (p.attrs?.officialRole as OfficialElement | undefined) ?? DEFAULT_ROLE,
+                    textOf(p),
+                  ),
+              );
+              return new TableCell({ children });
+            }),
+        }),
+    ),
   });
 }
 
@@ -110,10 +182,11 @@ function pageNumberFooter(align: (typeof AlignmentType)[keyof typeof AlignmentTy
   });
 }
 
-function buildChildren(doc: JSONContent): Paragraph[] {
+function buildChildren(doc: JSONContent): (Paragraph | Table)[] {
   const top = (doc.type === "doc" ? doc.content : [doc]) ?? [];
   return top.map((node) => {
     if (node.type === "horizontalRule") return separatorParagraph();
+    if (node.type === "table") return tableForNode(node);
     const role = (node.attrs?.officialRole as OfficialElement | undefined) ?? DEFAULT_ROLE;
     return paragraphForRole(role, textOf(node));
   });
@@ -144,6 +217,7 @@ function buildDocument(doc: JSONContent): Document {
 
   return new Document({
     evenAndOddHeaderAndFooters: true,
+    styles: { paragraphStyles: buildParagraphStyles() },
     sections: [section],
   });
 }
