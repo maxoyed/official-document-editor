@@ -3,7 +3,7 @@
 [![CI](https://github.com/maxoyed/official-document-editor/actions/workflows/ci.yml/badge.svg)](https://github.com/maxoyed/official-document-editor/actions/workflows/ci.yml)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
-**🔗 在线试用**：[在线编辑器 Demo](https://maxoyed.github.io/official-document-editor/) · [Vue/React 示例](https://maxoyed.github.io/official-document-editor/examples/)
+**📖 文档站**：<https://maxoyed.github.io/official-document-editor/> · [在线编辑器](https://maxoyed.github.io/official-document-editor/playground/) · [Vue/React 示例](https://maxoyed.github.io/official-document-editor/examples/)
 
 一款**纯前端、离线可用、headless** 的中国党政机关公文编辑器，默认排版即符合
 **GB/T 9704-2012《党政机关公文格式》**，基于 [Tiptap](https://tiptap.dev/)
@@ -158,6 +158,7 @@ packages/
   react/           @maxoyed/ode-react —— React 适配（<OfficialEditor value/onChange>）
 playground/        Vite 联调示例（原生）
 examples/          Vue / React 适配示例
+docs/              VitePress 文档站
 ```
 
 ## 路线图
