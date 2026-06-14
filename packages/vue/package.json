@@ -1,6 +1,6 @@
 {
   "name": "@maxoyed/ode-vue",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "公文编辑器 Vue 3 适配：<OfficialEditor v-model> 与 useOfficialEditor，开箱即公文版式。",
   "license": "MIT",
   "author": "maxoyed <y@openingsource.org>",
@@ -13,7 +13,16 @@
   "bugs": {
     "url": "https://github.com/maxoyed/official-document-editor/issues"
   },
-  "keywords": ["公文", "公文编辑器", "official-document", "vue", "vue3", "tiptap", "docx", "GB/T 9704"],
+  "keywords": [
+    "公文",
+    "公文编辑器",
+    "official-document",
+    "vue",
+    "vue3",
+    "tiptap",
+    "docx",
+    "GB/T 9704"
+  ],
   "publishConfig": {
     "access": "public"
   },
@@ -27,7 +36,11 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",

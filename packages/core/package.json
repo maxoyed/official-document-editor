@@ -1,6 +1,6 @@
 {
   "name": "@maxoyed/ode-core",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Headless 公文编辑器核心：GB/T 9704-2012 版式规范、Tiptap 公文节点与字体插槽，与前端框架无关。",
   "license": "MIT",
   "author": "maxoyed <y@openingsource.org>",
