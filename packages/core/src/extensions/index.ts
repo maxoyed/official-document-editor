@@ -13,6 +13,7 @@ import type { Extensions } from "@tiptap/core";
 import { OfficialRole } from "./official-role";
 import { OfficialImage } from "./official-image";
 import { HorizontalRuleVariant } from "./hr-variant";
+import { PageBreakBefore } from "./page-break";
 import { Pagination } from "./pagination";
 
 export interface OfficialExtensionsOptions {
@@ -32,6 +33,7 @@ export function getOfficialExtensions(options: OfficialExtensionsOptions = {}): 
     Color,
     TextAlign.configure({ types: ["paragraph"] }),
     OfficialRole.configure({ types: ["paragraph"] }),
+    PageBreakBefore.configure({ types: ["paragraph"] }),
     HorizontalRuleVariant,
     Table.configure({ resizable: false }),
     TableRow,
@@ -43,6 +45,6 @@ export function getOfficialExtensions(options: OfficialExtensionsOptions = {}): 
   return extensions;
 }
 
-export { OfficialRole, Pagination, HorizontalRuleVariant, OfficialImage };
+export { OfficialRole, Pagination, HorizontalRuleVariant, OfficialImage, PageBreakBefore };
 export type { PaginationOptions } from "./pagination";
 export type { HrVariant } from "./hr-variant";

@@ -126,6 +126,11 @@ export function renderPaginatedPreview(
   let used = 0;
 
   for (const node of blocks) {
+    // 段前分页：强制另起一页
+    if (node.attrs?.pageBreakBefore && refs.area.childElementCount > 0) {
+      refs = newPage();
+      used = 0;
+    }
     const el = renderBlock(node);
     refs.area.appendChild(el);
     const h = el.getBoundingClientRect().height;

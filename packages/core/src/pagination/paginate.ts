@@ -25,6 +25,8 @@ export interface PaginationBlock {
   text?: string;
   /** 是否为不可断块（如分隔线、表格），不跨页拆分 */
   atomic?: boolean;
+  /** 段前分页：该块强制另起一页（附件页等） */
+  forceBreakBefore?: boolean;
 }
 
 /** 分页结果中某页承载的一个片段。 */
@@ -105,6 +107,9 @@ export function paginate(
     const role = block.role ?? DEFAULT_ROLE;
     const lh = lineHeightPtFor(role);
     const totalLines = estimateLines(block);
+
+    // 段前分页：强制另起一页（当前页非空时）
+    if (block.forceBreakBefore && current.fragments.length > 0) pushPage();
 
     if (block.atomic) {
       const blockHeight = totalLines * lh;

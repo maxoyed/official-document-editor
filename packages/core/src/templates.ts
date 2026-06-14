@@ -162,6 +162,56 @@ export function blankDocumentTemplate(): JSONContent {
   return { type: "doc", content: [p("body", "")] };
 }
 
+export interface AttachmentSpec {
+  /** 正文下方的附件说明文字（如「附件：×××表」），缺省「附件：×××」 */
+  note?: string;
+  /** 附件标识（附件页左上角，如「附件1」） */
+  label?: string;
+  /** 附件标题 */
+  title?: string;
+  /** 附件正文段落 */
+  body?: string[];
+}
+
+/**
+ * 为公文追加附件：在署名前插入「附件说明」，并在文末另起一页排「附件标识 + 附件标题 + 正文」。
+ */
+export function appendAttachment(doc: JSONContent, att: AttachmentSpec): JSONContent {
+  const content = [...(doc.content ?? [])];
+
+  // 附件说明插在署名/成文日期之前（属正文区）
+  const note = att.note ?? "附件：×××";
+  const sigIdx = content.findIndex(
+    (n) => n.attrs?.officialRole === "signature" || n.attrs?.officialRole === "dateline",
+  );
+  const noteNode = p("attachmentNote", note);
+  if (sigIdx >= 0) content.splice(sigIdx, 0, noteNode);
+  else content.push(noteNode);
+
+  // 附件页（另起一页）
+  if (att.label) {
+    content.push({
+      type: "paragraph",
+      attrs: { officialRole: "attachmentLabel", pageBreakBefore: true },
+      content: [{ type: "text", text: att.label }],
+    });
+  }
+  if (att.title) content.push(p("title", att.title));
+  for (const b of att.body ?? []) content.push(p("body", b));
+
+  return { type: "doc", content };
+}
+
+/** 带附件页的通知模板。 */
+export function attachmentTemplate(): JSONContent {
+  return appendAttachment(redHeadDocumentTemplate(), {
+    note: "附件：×××情况表",
+    label: "附件1",
+    title: "×××情况表",
+    body: ["（此处为附件内容，可插入表格或正文。）"],
+  });
+}
+
 export interface DocumentTemplate {
   /** 唯一标识 */
   key: string;
@@ -181,5 +231,6 @@ export const documentTemplates: DocumentTemplate[] = [
   { key: "letter", label: "函", direction: "平行", build: letterTemplate },
   { key: "circular", label: "通报", direction: "下行", build: circularTemplate },
   { key: "minutes", label: "会议纪要", direction: "—", build: minutesTemplate },
+  { key: "attachment", label: "通知（带附件）", direction: "下行", build: attachmentTemplate },
   { key: "blank", label: "空白", direction: "—", build: blankDocumentTemplate },
 ];

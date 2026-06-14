@@ -172,7 +172,15 @@ function paragraphToNode(pChildren: PO[], ctx: ImportCtx): JSONContent {
     });
   }
 
-  const node: JSONContent = { type: "paragraph", attrs: { officialRole: role } };
+  // 段前分页：w:pPr/w:pageBreakBefore 或正文中的分页符 w:br[type=page]
+  const pageBreakBefore =
+    !!find(pPrKids, "w:pageBreakBefore") ||
+    runs.some((r) => childrenOf(r).some((n) => tagOf(n) === "w:br" && attr(n, "w:type") === "page"));
+
+  const node: JSONContent = {
+    type: "paragraph",
+    attrs: pageBreakBefore ? { officialRole: role, pageBreakBefore: true } : { officialRole: role },
+  };
   if (text.length) node.content = [{ type: "text", text }];
   return node;
 }

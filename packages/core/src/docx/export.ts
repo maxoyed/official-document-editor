@@ -69,7 +69,7 @@ function textOf(node: JSONContent): string {
 }
 
 /** 将一个公文段落块转为 docx Paragraph。 */
-function paragraphForRole(role: OfficialElement, text: string): Paragraph {
+function paragraphForRole(role: OfficialElement, text: string, pageBreakBefore = false): Paragraph {
   const spec = ELEMENT_SPEC[role] ?? ELEMENT_SPEC[DEFAULT_ROLE];
   const sizePt = toPt(spec.size);
   const fontName = DOCX_FONT_NAME[spec.font];
@@ -82,6 +82,7 @@ function paragraphForRole(role: OfficialElement, text: string): Paragraph {
 
   return new Paragraph({
     style: styleIdFor(role), // 命名样式，便于 Word 识别与无损往返
+    ...(pageBreakBefore ? { pageBreakBefore: true } : {}),
     alignment: alignmentOf(spec),
     indent: Object.keys(indent).length ? indent : undefined,
     // 正文固定行距按规范（每面 22 行）；标题等沿用同一固定行距，保证版式稳定
@@ -249,7 +250,7 @@ function nodeToBlock(node: JSONContent): Paragraph | Table {
   if (node.type === "image") return imageParagraph(node);
   if (node.type === "table") return tableForNode(node);
   const role = (node.attrs?.officialRole as OfficialElement | undefined) ?? DEFAULT_ROLE;
-  return paragraphForRole(role, textOf(node));
+  return paragraphForRole(role, textOf(node), !!node.attrs?.pageBreakBefore);
 }
 
 function buildChildren(doc: JSONContent): (Paragraph | Table)[] {

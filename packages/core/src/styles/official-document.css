@@ -157,6 +157,16 @@
   white-space: nowrap;
 }
 
+/* 段前分页（附件页等"另起一页"）：打印另起一页；编辑器内以虚线标识 */
+.odoc-break-before {
+  break-before: page;
+}
+.odoc-page .ProseMirror .odoc-break-before {
+  border-top: 2px dashed #c9ccd1;
+  margin-top: 12px;
+  padding-top: 12px;
+}
+
 /* 打印：每页一张 A4，去除画布背景与阴影，页码随页输出 */
 @media print {
   @page {

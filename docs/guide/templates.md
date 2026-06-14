@@ -36,5 +36,23 @@ documentTemplates.forEach((t) => {
 | 函 | 平行 | 函头「○○○函」，结尾「特此函达」 |
 | 通报 | 下行 | 结尾「特此通报」 |
 | 会议纪要 | — | 会议概况 + 议定事项，无署名 / 印章 |
+| 通知（带附件） | 下行 | 含附件说明 + 附件页（另起一页） |
+
+## 附件页
+
+`appendAttachment(doc, spec)` 为公文追加附件：在署名前插入「附件说明」，并在文末以**段前分页**另起一页排「附件标识（附件1）+ 附件标题 + 正文」。
+
+```ts
+import { appendAttachment, redHeadDocumentTemplate } from "@maxoyed/ode-core";
+
+const doc = appendAttachment(redHeadDocumentTemplate(), {
+  note: "附件：×××情况表",
+  label: "附件1",
+  title: "×××情况表",
+  body: ["（附件内容，可插入表格或正文。）"],
+});
+```
+
+「段前分页」由段落属性 `pageBreakBefore` 表达（命令 `setPageBreakBefore()`），分页 / 打印 / docx 均据此另起一页。
 
 每个模板都能通过[合规校验](./validate)（无 error 级问题）。

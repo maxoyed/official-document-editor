@@ -127,14 +127,21 @@ function measureLines(view: EditorView): { rects: BlockRect[]; positions: number
     }
     if (lineRects.length === 0) lineRects = [el.getBoundingClientRect()];
 
+    const forcedBlock = el.hasAttribute("data-odoc-page-break-before");
+    let firstLine = true;
     for (const lr of lineRects) {
       if (lr.height < 1) continue;
       const at = view.posAtCoords({ left: lr.left + 1, top: lr.top + lr.height / 2 });
       if (!at) continue;
       if (at.pos === lastPos) continue; // 同一行的重复行盒去重
       lastPos = at.pos;
-      rects.push({ top: lr.top - rootRect.top - offsetAbove(lr.top), height: lr.height });
+      rects.push({
+        top: lr.top - rootRect.top - offsetAbove(lr.top),
+        height: lr.height,
+        ...(forcedBlock && firstLine ? { forced: true } : {}),
+      });
       positions.push(at.pos);
+      firstLine = false;
     }
   }
   return { rects, positions };

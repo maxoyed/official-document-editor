@@ -35,6 +35,7 @@ app.innerHTML = `
     <button data-cmd="image">插入图片</button>
     <button data-cmd="seal">插入印章</button>
     <button data-cmd="record">版记线</button>
+    <button data-cmd="pagebreak">段前分页</button>
     <button data-cmd="validate">校验</button>
     <button data-cmd="normdate">日期→阿拉伯</button>
     <label class="tpl-label">文种：<select id="tpl"></select></label>
@@ -172,6 +173,11 @@ imgInput.addEventListener("change", () => {
 
 cmd("record").addEventListener("click", () => {
   editor.chain().focus().setHorizontalRuleVariant("record").run();
+  refreshPreview();
+});
+
+cmd("pagebreak").addEventListener("click", () => {
+  editor.chain().focus().setPageBreakBefore().run();
   refreshPreview();
 });
 

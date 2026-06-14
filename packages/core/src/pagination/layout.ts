@@ -13,6 +13,8 @@ export interface BlockRect {
   top: number;
   /** 块高度（px） */
   height: number;
+  /** 段前分页：强制在此块之前断页 */
+  forced?: boolean;
 }
 
 export interface PageBreakOptions {
@@ -55,7 +57,7 @@ export function computePageBreaks(
     const relBottom = b.top + b.height - pageStart;
     const isFirstOnPage = b.top <= pageStart + 0.5;
 
-    if (relBottom > pageContentPx && !isFirstOnPage) {
+    if ((relBottom > pageContentPx || b.forced) && !isFirstOnPage) {
       const remaining = pageContentPx - (b.top - pageStart); // 上一页剩余空白
       breaks.push({
         beforeIndex: i,

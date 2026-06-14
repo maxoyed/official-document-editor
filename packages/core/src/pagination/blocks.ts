@@ -15,14 +15,15 @@ function textOf(node: JSONContent): string {
 export function blocksFromDoc(doc: JSONContent): PaginationBlock[] {
   const top = doc.type === "doc" ? (doc.content ?? []) : [doc];
   return top.map((node) => {
+    const forceBreakBefore = node.attrs?.pageBreakBefore ? true : undefined;
     if (node.type === "horizontalRule") {
-      return { atomic: true } as PaginationBlock;
+      return { atomic: true, forceBreakBefore } as PaginationBlock;
     }
     if (node.type === "table" || node.type === "image") {
       // 表格/图片不参与按行拆分
-      return { atomic: true, text: textOf(node) } satisfies PaginationBlock;
+      return { atomic: true, text: textOf(node), forceBreakBefore } satisfies PaginationBlock;
     }
     const role = node.attrs?.officialRole as OfficialElement | undefined;
-    return { role, text: textOf(node) } satisfies PaginationBlock;
+    return { role, text: textOf(node), forceBreakBefore } satisfies PaginationBlock;
   });
 }
