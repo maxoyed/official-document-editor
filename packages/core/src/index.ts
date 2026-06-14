@@ -13,6 +13,7 @@
 export * from "./spec";
 export * from "./pagination";
 export * from "./validate";
+export * from "./date";
 export * from "./extensions";
 export * from "./templates";
 export { createOfficialDocumentEditor } from "./editor";

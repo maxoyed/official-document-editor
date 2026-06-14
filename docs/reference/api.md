@@ -27,6 +27,10 @@
 
 `validateDocument(doc, options?)`、`isValid(doc, options?)`、`inferDocType(doc)`。类型 `Issue`、`IssueLevel`、`IssueCode`、`OfficialDocType`、`ValidateOptions`。
 
+## `@maxoyed/ode-core/date`
+
+`toChineseDate(input)`、`toArabicDate(input)`、`parseDate(input)`（成文日期中文 ↔ 阿拉伯数字转换；`input` 可为字符串 / `Date` / `{ year, month, day }`）。
+
 ## `@maxoyed/ode-core/docx`
 
 `toDocxBlob(doc)`、`toDocxBuffer(doc)`、`fromDocx(data)`、`styleIdFor(role)`、`readImageSize(bytes)`、`parseDataUrl(src)`、`toDataUrl(type, bytes)`、`roleFromDocxFont(name)`、`inferRole(props)`、`DOCX_FONT_NAME`。

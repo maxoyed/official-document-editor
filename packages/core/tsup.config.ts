@@ -6,6 +6,7 @@ export default defineConfig({
     "spec/index": "src/spec/index.ts",
     "pagination/index": "src/pagination/index.ts",
     "validate/index": "src/validate/index.ts",
+    "date/index": "src/date/index.ts",
     "docx/index": "src/docx/index.ts",
   },
   format: ["esm"],
@@ -36,6 +37,7 @@ export default defineConfig({
       "spec/index": "src/spec/index.ts",
       "pagination/index": "src/pagination/index.ts",
       "validate/index": "src/validate/index.ts",
+      "date/index": "src/date/index.ts",
       "docx/index": "src/docx/index.ts",
       styles: "src/styles/official-document.css",
     };
