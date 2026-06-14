@@ -43,7 +43,8 @@ export type OfficialElement =
   | "headingLevel2" // 二级标题  （一）
   | "headingLevel3" // 三级标题  1.
   | "headingLevel4" // 四级标题  （1）
-  | "attachmentNote" // 附件说明
+  | "attachmentNote" // 附件说明（正文下方「附件：1.×××」）
+  | "attachmentLabel" // 附件标识（附件页左上角「附件1」，黑体三号顶格）
   | "signature" // 发文机关署名
   | "dateline" // 成文日期
   | "note" // 附注
@@ -66,6 +67,7 @@ export const ELEMENT_SPEC: Record<OfficialElement, ElementSpec> = {
   headingLevel3: { font: "fangsong", size: "三号", bold: true, indent: 2 },
   headingLevel4: { font: "fangsong", size: "三号", indent: 2 },
   attachmentNote: { font: "fangsong", size: "三号", indent: 2 },
+  attachmentLabel: { font: "heiti", size: "三号", align: "left" },
   signature: { font: "fangsong", size: "三号", align: "right", marginRight: 4 },
   dateline: { font: "fangsong", size: "三号", align: "right", marginRight: 4 },
   note: { font: "fangsong", size: "三号", indent: 2 },

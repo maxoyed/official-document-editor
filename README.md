@@ -177,7 +177,7 @@ docs/              VitePress 文档站
 - [x] VitePress 文档站（首页 + 指南 + API 参考 + 在线演示）
 - [x] 成文日期中文↔阿拉伯转换（`toArabicDate` / `toChineseDate`）
 - [x] 合并单元格复杂场景（colspan+rowspan 组合、跨多行、单元格内嵌套表格）
-- [ ] 待办：附件页结构化
+- [x] 附件页结构化（附件说明 + 附件标识 + 段前分页 `pageBreakBefore`）
 
 ## 发布的 npm 包
 
