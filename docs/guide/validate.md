@@ -33,6 +33,16 @@ inferDocType(doc);             // "request" | "report" | "minutes" | ...
 validateDocument(doc, { docType: "request" });
 ```
 
+::: tip 成文日期规范化
+校验对汉字数字的成文日期会给出 `DATELINE_FORMAT` 提示。可用 [`@maxoyed/ode-core/date`](../reference/api#maxoyed-ode-core-date) 一键转换：
+
+```ts
+import { toArabicDate, toChineseDate } from "@maxoyed/ode-core/date";
+toArabicDate("二〇二六年六月十三日"); // "2026年6月13日"（GB/T 规范）
+toChineseDate("2026年6月13日");       // "二〇二六年六月十三日"
+```
+:::
+
 ## 自定义必备 / 建议要素
 
 ```ts

@@ -6,6 +6,7 @@ import {
   blocksFromDoc,
   validateDocument,
   inferDocType,
+  toArabicDate,
   documentTemplates,
   type Editor,
   type OfficialElement,
@@ -35,6 +36,7 @@ app.innerHTML = `
     <button data-cmd="seal">插入印章</button>
     <button data-cmd="record">版记线</button>
     <button data-cmd="validate">校验</button>
+    <button data-cmd="normdate">日期→阿拉伯</button>
     <label class="tpl-label">文种：<select id="tpl"></select></label>
     <button data-cmd="import">导入 docx</button>
     <button data-cmd="export">导出 docx</button>
@@ -171,6 +173,26 @@ imgInput.addEventListener("change", () => {
 cmd("record").addEventListener("click", () => {
   editor.chain().focus().setHorizontalRuleVariant("record").run();
   refreshPreview();
+});
+
+// 成文日期规范化为阿拉伯数字（GB/T 9704）
+cmd("normdate").addEventListener("click", () => {
+  const doc = editor.getJSON();
+  let changed = false;
+  for (const node of doc.content ?? []) {
+    const t = node.attrs?.officialRole === "dateline" ? node.content?.[0]?.text : undefined;
+    if (t) {
+      const a = toArabicDate(t);
+      if (a !== t) {
+        node.content![0].text = a;
+        changed = true;
+      }
+    }
+  }
+  if (changed) {
+    editor.commands.setContent(doc);
+    refreshPreview();
+  }
 });
 
 const validateBar = document.querySelector<HTMLDivElement>("#validate-bar")!;
