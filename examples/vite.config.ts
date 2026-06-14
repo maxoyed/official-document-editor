@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 const pkg = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 
 export default defineConfig({
+  base: "./", // 便于在 GitHub Pages 子路径下托管
   resolve: {
     alias: {
       "@maxoyed/ode-core/styles.css": pkg("../packages/core/src/styles/official-document.css"),
