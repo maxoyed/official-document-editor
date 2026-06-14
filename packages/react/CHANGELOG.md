@@ -1,5 +1,12 @@
 # @maxoyed/ode-react
 
+## 0.4.0
+
+### Patch Changes
+
+- Updated dependencies [e75333b]
+  - @maxoyed/ode-core@0.4.0
+
 ## 0.3.0
 
 ### Patch Changes
