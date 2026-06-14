@@ -134,3 +134,7 @@ body {
 }
 .validate-bar .issue.error { color: #c0392b; border-color: #e6b0aa; }
 .validate-bar .issue.warn { color: #9a6700; border-color: #e6d8a8; }
+
+/* 文种选择 */
+.toolbar .tpl-label { font-size: 13px; color: #374151; display: inline-flex; align-items: center; gap: 4px; }
+.toolbar .tpl-label select { padding: 4px 8px; border: 1px solid #d0d3d8; border-radius: 6px; font-size: 13px; background: #fff; }
