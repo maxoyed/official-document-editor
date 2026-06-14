@@ -1,5 +1,13 @@
 # @maxoyed/ode-vue
 
+## 0.3.0
+
+### Patch Changes
+
+- Updated dependencies [36b96c1]
+- Updated dependencies [347d800]
+  - @maxoyed/ode-core@0.3.0
+
 ## 0.2.0
 
 ### Patch Changes
