@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 const coreSrc = fileURLToPath(new URL("../packages/core/src", import.meta.url));
 
 export default defineConfig({
+  base: "./", // 便于在 GitHub Pages 子路径下托管
   resolve: {
     alias: {
       // 直接引用 core 源码，便于联调与 HMR（无需先 build）
