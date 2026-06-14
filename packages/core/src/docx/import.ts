@@ -10,8 +10,7 @@ import { unzipSync, strFromU8 } from "fflate";
 import { XMLParser } from "fast-xml-parser";
 import type { JSONContent } from "@tiptap/core";
 import { ELEMENT_SPEC, type OfficialElement } from "../spec/elements";
-import { toHalfPoint } from "../spec/font-size";
-import { FONT_ROLE_BY_DOCX_NAME } from "./font-map";
+import { roleFromDocxFont } from "./font-map";
 import { STYLE_ID_PREFIX } from "./export";
 import { readImageSize, toDataUrl } from "./image";
 
@@ -88,19 +87,39 @@ interface ParaProps {
   align: string;
   hasIndent: boolean;
   bold: boolean;
+  text?: string;
 }
 
-function inferRole(props: ParaProps): OfficialElement {
-  const roleByFont = props.fontName ? FONT_ROLE_BY_DOCX_NAME[props.fontName] : undefined;
-  for (const role of Object.keys(ELEMENT_SPEC) as OfficialElement[]) {
-    const spec = ELEMENT_SPEC[role];
-    if (roleByFont && spec.font !== roleByFont) continue;
-    if (props.sizeHalfPoint !== undefined && toHalfPoint(spec.size) !== props.sizeHalfPoint) continue;
-    if (normAlign(spec.align) !== props.align) continue;
-    if (Boolean(spec.bold) !== props.bold) continue;
-    if (Boolean(spec.indent) !== props.hasIndent) continue;
-    return role;
+const DATE_RE = /\d{4}\s*年\s*\d{1,2}\s*月\s*\d{1,2}\s*日/;
+
+/**
+ * 按「字体类 + 字号 + 对齐」推断公文要素（用于无 odoc- 命名样式的外部 docx）。
+ * 兼容多种字体写法（仿宋/FangSong、宋体/SimSun、黑体/SimHei、楷体/KaiTi、小标宋/中宋…）。
+ */
+export function inferRole(props: ParaProps): OfficialElement {
+  const role = roleFromDocxFont(props.fontName);
+  const pt = props.sizeHalfPoint !== undefined ? props.sizeHalfPoint / 2 : undefined;
+  const near = (target: number) => pt !== undefined && Math.abs(pt - target) <= 1.5;
+  const big = pt !== undefined && pt >= 20; // 二号(22pt)及以上
+  const a = props.align;
+  const isDate = !!props.text && DATE_RE.test(props.text);
+
+  if (role === "heiti") return "headingLevel1";
+  if (role === "kaiti") return a === "right" ? "signer" : "headingLevel2";
+  if (role === "xiaobiaosong") return pt !== undefined && pt >= 36 ? "issuer" : "title";
+
+  if (role === "fangsong" || role === "songti") {
+    if (big && a === "center") return "title";
+    if (near(14) && a !== "center") return "ccOrgan"; // 四号：版记
+    if (a === "center") return "docNumber";
+    if (a === "right") return isDate ? "dateline" : "signature";
+    return "body";
   }
+
+  // 未识别字体：按字号/对齐兜底
+  if (big && a === "center") return "title";
+  if (a === "center") return "docNumber";
+  if (a === "right") return isDate ? "dateline" : "signature";
   return DEFAULT_ROLE;
 }
 
@@ -149,6 +168,7 @@ function paragraphToNode(pChildren: PO[], ctx: ImportCtx): JSONContent {
       align: normAlign(attr(find(pPrKids, "w:jc"), "w:val")),
       hasIndent: attr(ind, "w:firstLine") !== undefined || attr(ind, "w:firstLineChars") !== undefined,
       bold: !!find(rprKids, "w:b"),
+      text,
     });
   }
 

@@ -22,7 +22,6 @@ import {
   TableRow,
   TextRun,
   TextWrappingType,
-  VerticalPositionAlign,
   VerticalPositionRelativeFrom,
   WidthType,
   type IParagraphStyleOptions,
@@ -195,9 +194,10 @@ function imageParagraph(node: JSONContent): Paragraph {
                   relative: HorizontalPositionRelativeFrom.MARGIN,
                   align: HorizontalPositionAlign.CENTER,
                 },
+                // 上移约 0.8 倍印章高度，使其叠压在上一行成文日期之上
                 verticalPosition: {
                   relative: VerticalPositionRelativeFrom.PARAGRAPH,
-                  align: VerticalPositionAlign.CENTER,
+                  offset: -Math.round(size.height * scale * 0.8 * 9525), // px → EMU
                 },
                 allowOverlap: true,
                 behindDocument: false,
