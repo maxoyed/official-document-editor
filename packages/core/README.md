@@ -28,6 +28,7 @@ editor.chain().focus().setOfficialRole("title").run();
 
 - `@maxoyed/ode-core/spec` — GB/T 9704-2012 版式规范（纯数据，零依赖）
 - `@maxoyed/ode-core/pagination` — headless 分页引擎（纯函数）
+- `@maxoyed/ode-core/validate` — 合规校验（`validateDocument`，纯函数）
 - `@maxoyed/ode-core/docx` — docx 导入/导出（`toDocxBlob` / `fromDocx`）
 
 ```ts
@@ -40,6 +41,7 @@ import { toDocxBlob, fromDocx } from "@maxoyed/ode-core/docx";
 - 公文版式渲染与编辑（红头、标题、各级标题、正文、署名、版记、页码…）
 - 精确分页：headless 引擎 + 编辑器内联实时分页（行级跨页断行）+ 打印 / 导出 PDF
 - docx 往返：命名样式无损 · 表格（含合并单元格）· 图片 · 印章 · 版记线
+- 合规校验 `validateDocument`：按 GB/T 9704 检查要素完整性/顺序/格式
 - 字体插槽 `registerFont`：开源字体兜底 + 用户授权字体注入
 
 ## 字体与版权

@@ -106,3 +106,31 @@ body {
     border: none;
   }
 }
+
+/* 校验结果条 */
+.validate-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #fff7f6;
+  border-bottom: 1px solid #f0d9d6;
+  font-size: 13px;
+}
+.validate-bar.ok {
+  background: #f1f9f2;
+  border-bottom-color: #cfe9d4;
+  color: #1f7a36;
+  font-weight: 500;
+}
+.validate-bar .issue {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid #f0d9d6;
+}
+.validate-bar .issue.error { color: #c0392b; border-color: #e6b0aa; }
+.validate-bar .issue.warn { color: #9a6700; border-color: #e6d8a8; }

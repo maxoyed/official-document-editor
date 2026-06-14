@@ -4,6 +4,7 @@ import {
   renderPaginatedPreview,
   countPages,
   blocksFromDoc,
+  validateDocument,
   type Editor,
   type OfficialElement,
 } from "@maxoyed/ode-core";
@@ -31,6 +32,7 @@ app.innerHTML = `
     <button data-cmd="image">插入图片</button>
     <button data-cmd="seal">插入印章</button>
     <button data-cmd="record">版记线</button>
+    <button data-cmd="validate">校验</button>
     <button data-cmd="reset">载入红头模板</button>
     <button data-cmd="import">导入 docx</button>
     <button data-cmd="export">导出 docx</button>
@@ -38,6 +40,7 @@ app.innerHTML = `
     <input type="file" id="file" accept=".docx" hidden />
     <input type="file" id="imgfile" accept="image/*" hidden />
   </div>
+  <div class="validate-bar" id="validate-bar" hidden></div>
   <div class="panes">
     <section class="pane">
       <header>编辑</header>
@@ -158,6 +161,24 @@ imgInput.addEventListener("change", () => {
 cmd("record").addEventListener("click", () => {
   editor.chain().focus().setHorizontalRuleVariant("record").run();
   refreshPreview();
+});
+
+const validateBar = document.querySelector<HTMLDivElement>("#validate-bar")!;
+cmd("validate").addEventListener("click", () => {
+  const issues = validateDocument(editor.getJSON());
+  validateBar.hidden = false;
+  if (issues.length === 0) {
+    validateBar.className = "validate-bar ok";
+    validateBar.textContent = "✓ 校验通过：未发现问题";
+    return;
+  }
+  validateBar.className = "validate-bar";
+  validateBar.innerHTML = issues
+    .map(
+      (i) =>
+        `<span class="issue ${i.level}">${i.level === "error" ? "✕" : "!"} ${i.message}</span>`,
+    )
+    .join("");
 });
 
 cmd("export").addEventListener("click", async () => {
