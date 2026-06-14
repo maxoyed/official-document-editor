@@ -35,7 +35,7 @@ editor.commands.setContent(fromDocx(await file.arrayBuffer()));
 | 内容 | 导出 | 导入 |
 | --- | --- | --- |
 | 段落 / 公文要素 | ✓ 命名样式 | ✓ 样式优先，回退推断 |
-| 表格（含合并单元格） | ✓ | ✓ gridSpan / vMerge 重建 |
+| 表格（合并单元格 / 嵌套表格） | ✓ | ✓ gridSpan / vMerge 网格重建，含嵌套 |
 | 图片 | ✓ 字节嵌入 `word/media` | ✓ 从媒体抽取还原 |
 | 印章 | ✓ 浮动叠压成文日期 | ✓ 浮动锚定 → seal |
 | 分隔线（红头反线 / 版记黑线） | ✓ | ✓ 按边框色区分 |

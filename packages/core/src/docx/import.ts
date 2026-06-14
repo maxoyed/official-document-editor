@@ -191,20 +191,27 @@ function tableToNode(tblChildren: PO[], ctx: ImportCtx): JSONContent {
       const gridSpan = Number(attr(find(tcPrKids, "w:gridSpan"), "w:val") ?? "1") || 1;
       const vMerge = find(tcPrKids, "w:vMerge");
       const isContinue = !!vMerge && attr(vMerge, "w:val") !== "restart";
+      const origin = isContinue ? colOrigin.get(col) : undefined;
 
-      if (isContinue) {
+      if (isContinue && origin?.attrs) {
         // 纵向合并的延续格：累加起始格 rowspan，不产出单元格
-        const origin = colOrigin.get(col);
-        if (origin?.attrs) origin.attrs.rowspan = Number(origin.attrs.rowspan ?? 1) + 1;
+        origin.attrs.rowspan = Number(origin.attrs.rowspan ?? 1) + 1;
         col += gridSpan;
         continue;
       }
+      // 否则（普通格 / restart / 无法解析起源的延续格）正常产出，避免丢内容或错位
 
-      const paras = findAll(kids(tc, "w:tc"), "w:p").map((p) => paragraphToNode(kids(p, "w:p"), ctx));
+      // 单元格内容按序：段落与嵌套表格（保留相对顺序）
+      const cellContent: JSONContent[] = [];
+      for (const child of kids(tc, "w:tc")) {
+        const ctag = tagOf(child);
+        if (ctag === "w:p") cellContent.push(paragraphToNode(kids(child, "w:p"), ctx));
+        else if (ctag === "w:tbl") cellContent.push(tableToNode(kids(child, "w:tbl"), ctx));
+      }
       const cell: JSONContent = {
         type: "tableCell",
         attrs: { colspan: gridSpan, rowspan: 1 },
-        content: paras.length ? paras : [{ type: "paragraph" }],
+        content: cellContent.length ? cellContent : [{ type: "paragraph" }],
       };
       rowCells.push(cell);
       for (let k = 0; k < gridSpan; k++) colOrigin.set(col + k, cell);
