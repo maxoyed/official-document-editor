@@ -39,7 +39,8 @@
 - **框架适配**（`@maxoyed/ode-vue` / `@maxoyed/ode-react`）：开箱 `<OfficialEditor>` 组件，
   Vue 走 `v-model`、React 走 `value/onChange`，headless core 之上薄封装
 - **合规校验**（`@maxoyed/ode-core/validate`，纯函数）：`validateDocument(doc)` 按 GB/T 9704
-  检查要素完整性、顺序与格式（发文字号/成文日期/标题标点等），返回 error/warn 问题列表
+  检查要素完整性、顺序与格式（发文字号/成文日期/标题标点等），并按**文种**（请示须单一主送、
+  报告不应夹带请示、纪要不应有印章…）施加专属规则，返回 error/warn 问题列表（含 `blockIndex` 可定位）
 - **字体插槽**（`registerFont`）：开源字体兜底 + 用户授权字体运行时注入
 - **可运行 Playground / Examples**：编辑+实时分页预览双栏；Vue/React 适配示例
 
@@ -172,7 +173,7 @@ examples/          Vue / React 适配示例
 - [x] **公文校验器**（`validateDocument`）：按 GB/T 9704 检查要素完整性/顺序/格式
 - [x] 更多文种模板（请示/报告/批复/函/通报/纪要）
 - [x] 外部 docx 兼容加固（字体别名 + 规则推断）+ 印章锚定
-- [ ] 校验器深化（分文种规则集、编辑器内高亮）
+- [x] 校验器深化（分文种规则集 + 编辑器内点击高亮问题段落）
 
 ## 发布的 npm 包
 

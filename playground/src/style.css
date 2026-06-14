@@ -138,3 +138,15 @@ body {
 /* 文种选择 */
 .toolbar .tpl-label { font-size: 13px; color: #374151; display: inline-flex; align-items: center; gap: 4px; }
 .toolbar .tpl-label select { padding: 4px 8px; border: 1px solid #d0d3d8; border-radius: 6px; font-size: 13px; background: #fff; }
+
+/* 校验：文种标签、可点击问题、段落高亮 */
+.validate-bar .vtype { font-weight: 600; color: #374151; margin-right: 4px; align-self: center; }
+.validate-bar .issue[data-idx] { cursor: pointer; }
+.validate-bar .issue[data-idx]:hover { background: #fdeeec; }
+.odoc-flash {
+  outline: 2px solid #c0392b;
+  outline-offset: 2px;
+  background: #fff3f0;
+  border-radius: 2px;
+  transition: background 0.4s, outline-color 0.4s;
+}

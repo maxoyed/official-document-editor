@@ -5,6 +5,7 @@ import {
   countPages,
   blocksFromDoc,
   validateDocument,
+  inferDocType,
   documentTemplates,
   type Editor,
   type OfficialElement,
@@ -173,21 +174,53 @@ cmd("record").addEventListener("click", () => {
 });
 
 const validateBar = document.querySelector<HTMLDivElement>("#validate-bar")!;
+
+const DOCTYPE_LABEL: Record<string, string> = {
+  notice: "通知", request: "请示", report: "报告", reply: "批复",
+  letter: "函", circular: "通报", minutes: "纪要", generic: "通用",
+};
+
+// 滚动并闪烁高亮第 index 个顶层块
+function flashBlock(index: number) {
+  const view = editor.view;
+  const offsets: number[] = [];
+  view.state.doc.forEach((_n, off) => offsets.push(off));
+  const pos = offsets[index];
+  if (pos == null) return;
+  const dom = view.nodeDOM(pos) as HTMLElement | null;
+  if (!dom || typeof dom.scrollIntoView !== "function") return;
+  dom.scrollIntoView({ block: "center", behavior: "smooth" });
+  dom.classList.add("odoc-flash");
+  setTimeout(() => dom.classList.remove("odoc-flash"), 1600);
+}
+
 cmd("validate").addEventListener("click", () => {
-  const issues = validateDocument(editor.getJSON());
+  const doc = editor.getJSON();
+  const issues = validateDocument(doc);
+  const typeLabel = DOCTYPE_LABEL[inferDocType(doc)] ?? "";
   validateBar.hidden = false;
   if (issues.length === 0) {
     validateBar.className = "validate-bar ok";
-    validateBar.textContent = "✓ 校验通过：未发现问题";
+    validateBar.textContent = `✓ 校验通过（识别为「${typeLabel}」）：未发现问题`;
     return;
   }
   validateBar.className = "validate-bar";
-  validateBar.innerHTML = issues
-    .map(
-      (i) =>
-        `<span class="issue ${i.level}">${i.level === "error" ? "✕" : "!"} ${i.message}</span>`,
-    )
-    .join("");
+  validateBar.innerHTML =
+    `<span class="vtype">文种：${typeLabel}</span>` +
+    issues
+      .map(
+        (i) =>
+          `<span class="issue ${i.level}"${
+            i.blockIndex !== undefined ? ` data-idx="${i.blockIndex}" role="button"` : ""
+          }>${i.level === "error" ? "✕" : "!"} ${i.message}</span>`,
+      )
+      .join("");
+});
+
+// 点击带 data-idx 的问题 → 高亮对应段落
+validateBar.addEventListener("click", (e) => {
+  const el = (e.target as HTMLElement).closest<HTMLElement>(".issue[data-idx]");
+  if (el) flashBlock(Number(el.dataset.idx));
 });
 
 cmd("export").addEventListener("click", async () => {
