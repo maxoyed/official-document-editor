@@ -143,13 +143,11 @@ function tableForNode(node: JSONContent): Table {
           children: (row.content ?? [])
             .filter((c) => c.type === "tableCell" || c.type === "tableHeader")
             .map((cell) => {
-              const paras = (cell.content ?? []).filter((n) => n.type === "paragraph");
-              const children = (paras.length ? paras : [{ type: "paragraph" } as JSONContent]).map(
-                (p) =>
-                  paragraphForRole(
-                    (p.attrs?.officialRole as OfficialElement | undefined) ?? DEFAULT_ROLE,
-                    textOf(p),
-                  ),
+              const nodes = (cell.content ?? []).filter(
+                (n) => n.type === "paragraph" || n.type === "table" || n.type === "image" || n.type === "horizontalRule",
+              );
+              const children = (nodes.length ? nodes : [{ type: "paragraph" } as JSONContent]).map(
+                nodeToBlock,
               );
               const colspan = Number(cell.attrs?.colspan ?? 1) || 1;
               const rowspan = Number(cell.attrs?.rowspan ?? 1) || 1;
@@ -244,16 +242,19 @@ function pageNumberFooter(align: (typeof AlignmentType)[keyof typeof AlignmentTy
   });
 }
 
+/** 顶层 / 单元格内的节点 → docx 块（支持表格内嵌段落/图片/分隔线/嵌套表格）。 */
+function nodeToBlock(node: JSONContent): Paragraph | Table {
+  if (node.type === "horizontalRule")
+    return separatorParagraph((node.attrs?.variant as "reverse" | "record") ?? "reverse");
+  if (node.type === "image") return imageParagraph(node);
+  if (node.type === "table") return tableForNode(node);
+  const role = (node.attrs?.officialRole as OfficialElement | undefined) ?? DEFAULT_ROLE;
+  return paragraphForRole(role, textOf(node));
+}
+
 function buildChildren(doc: JSONContent): (Paragraph | Table)[] {
   const top = (doc.type === "doc" ? doc.content : [doc]) ?? [];
-  return top.map((node) => {
-    if (node.type === "horizontalRule")
-      return separatorParagraph((node.attrs?.variant as "reverse" | "record") ?? "reverse");
-    if (node.type === "image") return imageParagraph(node);
-    if (node.type === "table") return tableForNode(node);
-    const role = (node.attrs?.officialRole as OfficialElement | undefined) ?? DEFAULT_ROLE;
-    return paragraphForRole(role, textOf(node));
-  });
+  return top.map(nodeToBlock);
 }
 
 function buildDocument(doc: JSONContent): Document {
