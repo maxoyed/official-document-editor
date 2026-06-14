@@ -5,6 +5,7 @@ import {
   countPages,
   blocksFromDoc,
   validateDocument,
+  documentTemplates,
   type Editor,
   type OfficialElement,
 } from "@maxoyed/ode-core";
@@ -33,7 +34,7 @@ app.innerHTML = `
     <button data-cmd="seal">插入印章</button>
     <button data-cmd="record">版记线</button>
     <button data-cmd="validate">校验</button>
-    <button data-cmd="reset">载入红头模板</button>
+    <label class="tpl-label">文种：<select id="tpl"></select></label>
     <button data-cmd="import">导入 docx</button>
     <button data-cmd="export">导出 docx</button>
     <button data-cmd="print">打印 / 导出 PDF</button>
@@ -102,9 +103,17 @@ document.querySelectorAll<HTMLButtonElement>("button[data-role]").forEach((btn) 
 const cmd = (name: string) =>
   document.querySelector<HTMLButtonElement>(`button[data-cmd="${name}"]`)!;
 
-cmd("reset").addEventListener("click", () => {
-  editor.commands.setContent(redHeadDocumentTemplate());
-  refreshPreview();
+// 文种选择：列出内置模板，选择即载入
+const tplSelect = document.querySelector<HTMLSelectElement>("#tpl")!;
+tplSelect.innerHTML = documentTemplates
+  .map((t) => `<option value="${t.key}">${t.label}${t.direction !== "—" ? `（${t.direction}文）` : ""}</option>`)
+  .join("");
+tplSelect.addEventListener("change", () => {
+  const tpl = documentTemplates.find((t) => t.key === tplSelect.value);
+  if (tpl) {
+    editor.commands.setContent(tpl.build());
+    refreshPreview();
+  }
 });
 
 cmd("fill").addEventListener("click", () => {
