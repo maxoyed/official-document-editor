@@ -1,5 +1,19 @@
 # @maxoyed/ode-core
 
+## 0.3.0
+
+### Minor Changes
+
+- 36b96c1: 外部 docx 兼容加固与印章锚定：
+
+  - 导入要素推断改为「字体类 + 字号 + 对齐」规则，兼容真实 Word 公文的多种字体写法（仿宋/FangSong/STFangsong、宋体/SimSun/NSimSun、黑体/SimHei/微软雅黑、楷体/KaiTi、小标宋/华文中宋/STZhongsong 等）；右对齐按日期文本区分署名/成文日期。导出 `roleFromDocxFont`、`inferRole` 供复用。
+  - 印章导出为浮动图片时上移约 0.8 倍印章高度，叠压于成文日期之上。
+
+- 347d800: 校验器深化：分文种规则集。
+
+  - 新增 `inferDocType(doc)` 由标题推断文种；`validateDocument` 支持 `options.docType` 并按文种施加专属规则：请示须一文一事/单一主送、结尾用请示用语、上行文应有签发人；报告不应夹带请示事项；会议纪要不应加盖印章、且不因缺主送/署名报警。
+  - 问题项带 `blockIndex`，便于在编辑器中定位/高亮。Playground 显示识别文种，点击问题即滚动并闪烁高亮对应段落。
+
 ## 0.2.0
 
 ### Minor Changes
