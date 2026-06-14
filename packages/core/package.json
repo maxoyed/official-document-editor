@@ -47,6 +47,10 @@
       "types": "./dist/pagination/index.d.ts",
       "import": "./dist/pagination/index.js"
     },
+    "./validate": {
+      "types": "./dist/validate/index.d.ts",
+      "import": "./dist/validate/index.js"
+    },
     "./docx": {
       "types": "./dist/docx/index.d.ts",
       "import": "./dist/docx/index.js"

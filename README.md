@@ -38,6 +38,8 @@
   图片（媒体嵌入/抽取）、印章（浮动叠加）、版记分隔线**
 - **框架适配**（`@maxoyed/ode-vue` / `@maxoyed/ode-react`）：开箱 `<OfficialEditor>` 组件，
   Vue 走 `v-model`、React 走 `value/onChange`，headless core 之上薄封装
+- **合规校验**（`@maxoyed/ode-core/validate`，纯函数）：`validateDocument(doc)` 按 GB/T 9704
+  检查要素完整性、顺序与格式（发文字号/成文日期/标题标点等），返回 error/warn 问题列表
 - **字体插槽**（`registerFont`）：开源字体兜底 + 用户授权字体运行时注入
 - **可运行 Playground / Examples**：编辑+实时分页预览双栏；Vue/React 适配示例
 
@@ -144,6 +146,7 @@ packages/
   core/            @maxoyed/ode-core —— headless 公文核心
     src/spec/      GB/T 9704-2012 版式规范（纯数据）
     src/pagination/ 分页引擎 + 页码（headless，零 DOM）
+    src/validate/  公文合规校验器（headless，纯函数）
     src/preview/   分页预览渲染器（浏览器）
     src/docx/      docx 导入/导出（OOXML 映射，纯前端）
     src/fonts/     字体插槽（registerFont）
@@ -166,7 +169,8 @@ examples/          Vue / React 适配示例
 - [x] **docx 保真增强（二·图片）**：图片字节嵌入 `word/media` 并从 docx 抽取还原（往返保字节）
 - [x] **docx 保真增强（三）**：版记分隔线（红/黑变体）、合并单元格（colspan/rowspan）、印章（浮动叠加）
 - [ ] 合并单元格更多场景、附件页、外部 docx 兼容性加固
-- [ ] 公文校验器（按 GB/T 9704 检查版式合规）
+- [x] **公文校验器**（`validateDocument`）：按 GB/T 9704 检查要素完整性/顺序/格式
+- [ ] 更多文种模板（请示/报告/批复/函/纪要）与外部 docx 兼容性加固
 
 ## 发布的 npm 包
 
