@@ -1,6 +1,6 @@
 {
   "name": "@maxoyed/ode-vue",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "公文编辑器 Vue 3 适配：<OfficialEditor v-model> 与 useOfficialEditor，开箱即公文版式。",
   "license": "MIT",
   "author": "maxoyed <y@openingsource.org>",
