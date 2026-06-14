@@ -1,6 +1,6 @@
 {
   "name": "@maxoyed/ode-react",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "公文编辑器 React 适配：<OfficialEditor /> 与 useOfficialEditor，开箱即公文版式。",
   "license": "MIT",
   "author": "maxoyed <y@openingsource.org>",
